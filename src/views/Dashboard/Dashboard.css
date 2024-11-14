@@ -1,0 +1,62 @@
+/* Căn chỉnh và thiết kế cho sidebar */
+.sidebar {
+    width: 250px;
+    background-color: #f8f9fa;
+    padding: 20px;
+    height: 100vh;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.menu-icon {
+    font-size: 20px;
+    margin-right: 10px;
+}
+
+.title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+.title strong {
+    color: #4a90e2;
+}
+
+.menu-section {
+    margin-top: 10px;
+}
+
+.menu-category {
+    font-size: 15px;
+    color: #6c757d;
+    margin: 20px 0 10px;
+    font-weight: bold;
+    text-align: left;
+}
+
+.menu-item {
+    text-decoration: none;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    color: #333;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.menu-item:hover {
+    background-color: #e0e7ff;
+}
+
+.menu-section a {
+    text-decoration: none;
+}
