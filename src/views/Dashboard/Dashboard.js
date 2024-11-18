@@ -6,16 +6,11 @@ const Dashboard = () => {
     return (
         <div className="sidebar-content">
             <div className="logo">
-                <span className="title">BMAGIC <strong>SCHOOL</strong></span>
+                <span className="title"><strong>SCHOOL logo</strong></span>
             </div>
 
             <div className="menu-section">
-                <Link to="/home">
-                    <div className="menu-item">
-                        Trang chủ
-                    </div>
-                </Link>
-
+               
                 <div className="menu-category">QUẢN LÝ HỌC SINH</div>
                 <Link to="/students-list">
                     <div className="menu-item">

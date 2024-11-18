@@ -6,12 +6,13 @@
     height: 100vh;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     font-family: Arial, sans-serif;
+   
 }
 
 .logo {
     display: flex;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 35px;
 }
 
 .menu-icon {
@@ -26,7 +27,7 @@
 }
 
 .title strong {
-    color: #4a90e2;
+    color: #d1d800;
 }
 
 .menu-section {
@@ -34,8 +35,8 @@
 }
 
 .menu-category {
-    font-size: 15px;
-    color: #6c757d;
+    font-size: 17px;
+    color: #5d6770;
     margin: 20px 0 10px;
     font-weight: bold;
     text-align: left;
@@ -54,7 +55,8 @@
 }
 
 .menu-item:hover {
-    background-color: #e0e7ff;
+    background-color: rgb(209, 249, 209);
+    font-weight: bold;
 }
 
 .menu-section a {

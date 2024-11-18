@@ -4,8 +4,8 @@ import React from "react";
 const Menu = () => {
     return (
         <div>
-            <h1>Trang chủ</h1>
-            {/* Nội dung của trang Danh sách học sinh */}
+           {/*  <h1>Danh sach hoc sinh</h1> */}
+
         </div>
     );
 };
