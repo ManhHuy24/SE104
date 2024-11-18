@@ -1,5 +1,4 @@
-
-.table-responsive{
+.table-responsive {
     background-color: white;
     margin: 20px auto;
     padding: 20px;
@@ -9,7 +8,7 @@
     max-width: 1200px;
 }
 
-.h1{
+.h1 {
     text-align: center;
     color: #4CAF50;
     margin-top: 20px;
@@ -48,7 +47,8 @@
     margin-top: 20px;
 }
 
-th, td {
+th,
+td {
     padding: 12px;
     border-bottom: 1px solid #ddd;
 }

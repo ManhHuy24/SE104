@@ -2,18 +2,32 @@ import React, { useState } from 'react';
 import './TiepNhanHocSinh.css';
 
 const TiepNhanHocSinh = () => {
-    const [showModal, setShowModal] = useState(false);
+    const [showModel, setShowModel] = useState(false);
+    const [showAddStudentModel, setShowAddStudentModel] = useState(false);
+    const [showEditStudentModel, setShowEditStudentModel] = useState(false);
 
     const handleAddStudent = () => {
-        alert('backend');
+        setShowAddStudentModel(true);
+    };
+
+    const closeAddStudentModel = () => {
+        setShowAddStudentModel(false);
     };
 
     const handleImportFile = () => {
-        setShowModal(true);
+        setShowModel(true);
     };
 
-    const closeModal = () => {
-        setShowModal(false);
+    const closeModel = () => {
+        setShowModel(false);
+    };
+
+    const handleEditStudent = () => {
+        setShowEditStudentModel(true);
+    };
+
+    const closeEditStudentModel = () => {
+        setShowEditStudentModel(false);
     };
 
     return (
@@ -27,18 +41,6 @@ const TiepNhanHocSinh = () => {
                     <i className="bx bx-import"></i> Nhập file
                 </button>
             </div>
-
-            {showModal && (
-                <div className="modal">
-                    <div className="modal-content">
-                        <span className="close" onClick={closeModal}>&times;</span>
-                        <form method="POST" encType="multipart/form-data">
-                            <input type="file" name="file" />
-                            <button type="submit">Nhập dữ liệu</button>
-                        </form>
-                    </div>
-                </div>
-            )}
 
             <div className="table-responsive">
                 <table className="table">
@@ -65,7 +67,9 @@ const TiepNhanHocSinh = () => {
                             <td className="text-center">a@gmail.com</td>
                             <td className="text-center">Đang học</td>
                             <td className="text-center">
-                                <button className="btn btn-edit"><i className="bx bxs-edit"></i></button>
+                                <button className="btn btn-edit" onClick={() => handleEditStudent()}>
+                                    <i className="bx bxs-edit"></i>
+                                </button>
                             </td>
                             <td className="text-center">
                                 <button className="btn btn-delete"><i className="bx bx-trash"></i></button>
@@ -80,8 +84,11 @@ const TiepNhanHocSinh = () => {
                             <td className="text-center">B@gmail.com</td>
                             <td className="text-center">Đang học</td>
                             <td className="text-center">
-                                <button className="btn btn-edit"><i className="bx bxs-edit"></i></button>
+                                <button className="btn btn-edit" onClick={() => handleEditStudent()}>
+                                    <i className="bx bxs-edit"></i>
+                                </button>
                             </td>
+
                             <td className="text-center">
                                 <button className="btn btn-delete"><i className="bx bx-trash"></i></button>
                             </td>
@@ -89,6 +96,95 @@ const TiepNhanHocSinh = () => {
                     </tbody>
                 </table>
             </div>
+
+            {
+                showAddStudentModel && (
+                    <div className="modal">
+                        <div className="modal-content">
+                            <span className="close" onClick={closeAddStudentModel}>&times;</span>
+                            <h2>Thêm học sinh mới</h2>
+                            <form>
+                                <div>
+                                    <label>Họ và tên:</label>
+                                    <input type="text" name="name" placeholder="Nhập họ và tên" />
+                                </div>
+                                <div>
+                                    <label>Ngày sinh:</label>
+                                    <input type="date" name="dob" />
+                                </div>
+                                <div>
+                                    <label>Giới tính:</label>
+                                    <select name="gender">
+                                        <option value="Nam">Nam</option>
+                                        <option value="Nữ">Nữ</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>Địa chỉ:</label>
+                                    <input type="text" name="address" placeholder="Nhập địa chỉ" />
+                                </div>
+                                <div>
+                                    <label>Email:</label>
+                                    <input type="email" name="email" placeholder="Nhập email" />
+                                </div>
+                                <button type="submit">Lưu</button>
+                            </form>
+                        </div>
+                    </div>
+                )
+            }
+
+            {
+                showEditStudentModel && (
+                    <div className="modal">
+                        <div className="modal-content">
+                            <span className="close" onClick={closeEditStudentModel}>&times;</span>
+                            <h2>Chỉnh sửa học sinh</h2>
+                            <form>
+                                <div>
+                                    <label>Họ và tên:</label>
+                                    <input type="text" name="name" placeholder="Nhập họ và tên" />
+                                </div>
+                                <div>
+                                    <label>Ngày sinh:</label>
+                                    <input type="date" name="dob" />
+                                </div>
+                                <div>
+                                    <label>Giới tính:</label>
+                                    <select name="gender">
+                                        <option value="Nam">Nam</option>
+                                        <option value="Nữ">Nữ</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>Địa chỉ:</label>
+                                    <input type="text" name="address" placeholder="Nhập địa chỉ" />
+                                </div>
+                                <div>
+                                    <label>Email:</label>
+                                    <input type="email" name="email" placeholder="Nhập email" />
+                                </div>
+                                <button type="submit">Lưu</button>
+                            </form>
+                        </div>
+                    </div>
+                )
+            }
+
+            {
+                showModel && (
+                    <div className="modal">
+                        <div className="modal-content">
+                            <span className="close" onClick={closeModel}>&times;</span>
+                            <form method="POST" encType="multipart/form-data">
+                                <input type="file" name="file" />
+                                <button type="submit">Nhập dữ liệu</button>
+                            </form>
+                        </div>
+                    </div>
+                )
+            }
+
         </div>
     );
 };

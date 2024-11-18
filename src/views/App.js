@@ -4,7 +4,7 @@ import Menu from './Pages/Menu';
 import StudentsList from './Pages/DanhSachHocSinh/DanhSachHocSinh';
 import ReceiveStudents from './Pages/TiepNhanHocSinh/TiepNhanHocSinh';
 import ManageClasses from './Pages/QuanLyLopHoc/QuanLyLopHoc';
-import CreateClassList from './Pages/LapDanhSachLop/LapDanhSachLop';
+import CreateClassList from './Pages/DanhSachLop/DanhSachLop';
 import ManageSubjects from './Pages/QuanLyMonHoc/QuanLyMonHoc';
 import SubjectGrades from './Pages/BangDiemMonHoc/BangDiemMonHoc';
 import Reports from './Pages/BaoCao/BaoCao';
