@@ -10,7 +10,7 @@ const Dashboard = () => {
             </div>
 
             <div className="menu-section">
-               
+
                 <div className="menu-category">QUẢN LÝ HỌC SINH</div>
                 <Link to="/students-list">
                     <div className="menu-item">
@@ -51,6 +51,11 @@ const Dashboard = () => {
                 <Link to="/reports">
                     <div className="menu-item">
                         Báo cáo
+                    </div>
+                </Link>
+                <Link to="/setting">
+                    <div className="menu-item">
+                        Cài đặt
                     </div>
                 </Link>
             </div>

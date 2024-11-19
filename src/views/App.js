@@ -8,6 +8,7 @@ import CreateClassList from './Pages/DanhSachLop/DanhSachLop';
 import ManageSubjects from './Pages/QuanLyMonHoc/QuanLyMonHoc';
 import SubjectGrades from './Pages/BangDiemMonHoc/BangDiemMonHoc';
 import Reports from './Pages/BaoCao/BaoCao';
+import CaiDat from './Pages/CaiDat/CaiDat';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
                 <Route path="/manage-subjects" element={<ManageSubjects />} />
                 <Route path="/subject-grades" element={<SubjectGrades />} />
                 <Route path="/reports" element={<Reports />} />
+                <Route path="/setting" element={<CaiDat />} />
               </Routes>
             </div>
           </div>
