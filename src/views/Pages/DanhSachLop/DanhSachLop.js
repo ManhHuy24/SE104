@@ -11,6 +11,12 @@ const DanhSachLop = () => {
     const closeAddStudentModel = () => {
         setShowAddStudentModel(false);
     };
+    const handleSearch = (event) => {
+        const query = event.target.value.toLowerCase();
+    };
+    const handleSearchStudent = (event) => {
+        const query = event.target.value.toLowerCase();
+    };
 
     return (
         <div>
@@ -34,8 +40,15 @@ const DanhSachLop = () => {
                     <i className="bx bx-plus"></i> Thêm học sinh vào danh sách
                 </button>
             </div>
-
             <div className="table-responsive">
+                <div className="search-bar">
+                    <input
+                        type="text"
+                        className="search-input"
+                        placeholder="Tìm kiếm lớp học..."
+                        onChange={handleSearch}
+                    />
+                </div>
                 <table className="table">
                     <thead>
                         <tr>
@@ -80,7 +93,15 @@ const DanhSachLop = () => {
                     <div className="modal">
                         <div className="modal-content">
                             <span className="close" onClick={closeAddStudentModel}>&times;</span>
-                            <h2>Thêm lớp học</h2>
+                            <h2>Thêm học sinh vào danh sách</h2>
+                            <div className="search-bar">
+                                <input
+                                    type="text"
+                                    className="search-input"
+                                    placeholder="Tìm kiếm lớp học..."
+                                    onChange={handleSearchStudent}
+                                />
+                            </div>
                             <table className="table">
                                 <thead>
                                     <tr>
