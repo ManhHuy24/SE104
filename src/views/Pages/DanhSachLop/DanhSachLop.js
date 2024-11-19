@@ -15,18 +15,18 @@ const DanhSachLop = () => {
     return (
         <div>
             <h1>Lập danh sách lớp</h1>
-            <div className="select-group">
-                <select name="year">
-                    <option value="2022-2023">2022-2023</option>
-                    <option value="2023-2024">2023-2024</option>
-                    <option value="2024-2025">2024-2025</option>
-                </select>
-                <select name="classes">
-                    <option value="10A1">10A1</option>
-                    <option value="10A2">10A2</option>
-                    <option value="10A3">10A3</option>
-                </select>
-                <input type="text" name="number" value="40" readonly />
+            <div className="select-group-horizontal compact-layout">
+             <select name="year" className="styled-select small-select">
+                  <option value="2022-2023">2022-2023</option>
+                 <option value="2023-2024">2023-2024</option>
+                 <option value="2024-2025">2024-2025</option>
+            </select>
+            <select name="classes" className="styled-select small-select">
+                <option value="10A1">10A1</option>
+                <option value="10A2">10A2</option>
+               <option value="10A3">10A3</option>
+             </select>
+              <input type="text" name="number" value="40" readOnly className="styled-input read-only-input" />
             </div>
 
             <div className="button-group">

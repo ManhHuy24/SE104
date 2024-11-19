@@ -1,0 +1,44 @@
+
+.select-group-horizontal {
+    display: flex; 
+    align-items: center; 
+    gap: 8px;
+    margin: 5px 0; 
+    justify-content: flex-start; 
+    max-width: 500px;
+    margin-left: 23px; 
+    margin-top: 30px;
+}
+
+.styled-select {
+    padding: 6px; 
+    font-size: 0.8rem; 
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background-color: #fff;
+    transition: border-color 0.2s;
+}
+
+
+.small-select {
+    width: 100px; 
+}
+
+
+.styled-input {
+    padding: 6px; 
+    font-size: 0.8rem; 
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    text-align: center; 
+    background-color: #f1f1f1;
+    color: #333;
+}
+
+/* Read-only input style */
+.read-only-input {
+    width: 50px; /* Smaller width */
+    cursor: not-allowed; /* Indicate non-editable */
+}
+
+

@@ -14,11 +14,36 @@ const DanhSachHocSinh = () => {
         ];
         setStudents(mockData); // update vào state
     }, []);
-
+    
+    const handleSearch = (event) => {
+        const query = event.target.value.toLowerCase();
+    };
+    
     return (
         <div>
             <h1>Danh sách học sinh</h1>
+            <div className="select-group">
+            <label htmlFor="year-select" className="select-label">Niên khóa</label>
+              <div className="custom-select">
+              <select id="year-select" name="year" className="styled-select">
+                 <option value="2022-2023">2022-2023</option>
+                 <option value="2023-2024">2023-2024</option>
+                 <option value="2024-2025">2024-2025</option>
+              </select>
+              <span className="dropdown-icon"><i className="bx bx-chevron-down"></i></span>
+              </div>
+        </div>
+
             <div className="card">
+                 {/* Ô tìm kiếm */}
+      <div className="search-bar">
+        <input 
+            type="text" 
+            className="search-input" 
+            placeholder="Tìm kiếm học sinh..." 
+            onChange={handleSearch} 
+        />
+    </div>
                 <table>
                     <thead>
                         <tr>

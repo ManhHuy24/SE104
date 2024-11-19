@@ -56,3 +56,86 @@ table tbody tr:hover {
 .margin-top {
     margin-top: 20px;
 }
+
+.search-bar {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.search-input {
+    width: 200px; 
+    padding: 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 15px;
+    transition: all 0.3s ease-in-out;
+}
+
+.search-input:focus {
+    border-color: #4CAF50; 
+    outline: none;
+}
+
+/* Nien khoa */
+.select-group {
+    margin: 20px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding-left: 23px; /* Adjust align to right */
+}
+
+.select-label {
+    font-size: 18px;
+    margin-bottom: 8px;
+    color: #333333;
+}
+
+.custom-select {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    max-width: 220px; /* Reduce the width for a  dropdown to smaller */
+}
+
+.styled-select {
+    width: 100%;
+    padding: 10px 14px; 
+    font-size: 0.9rem; 
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    background-color: #fff;
+    appearance: none; 
+    -webkit-appearance: none; 
+    -moz-appearance: none; 
+    color: #333;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+
+.dropdown-icon {
+    position: absolute;
+    top: 50%;
+    right: 10px; /* Adjust icon placement for smaller dropdown */
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: #777777;
+    font-size: 1.2rem;
+}
+
+
+.styled-select:hover {
+    border-color: #003106;
+}
+
+.styled-select:focus {
+    border-color: #00300e;
+    box-shadow: 0 0 0 4px rgba(119, 255, 0, 0.2);
+}
+
+.styled-select option {
+    padding: 8px;
+    font-size: 0.9rem;
+}
