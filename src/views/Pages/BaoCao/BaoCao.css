@@ -1,0 +1,35 @@
+.nav-tabs {
+    padding: 0;
+    list-style-type: none; 
+    display: flex; 
+    justify-content: flex-start; 
+    border-bottom: 1px solid #4CAF50; 
+}
+
+.nav-tabs li {
+    margin-right: 20px; 
+}
+
+.nav-tabs a {
+    display: inline-block;
+    padding: 10px 20px; 
+    font-size: 16px; 
+    color: black; 
+    text-decoration: none; 
+    transition: all 0.3s ease; 
+}
+
+.nav-tabs a:hover {
+    color:#2d692f;
+    font-size: 18px;
+    border-radius: 3px;
+    border: 1px solid;
+    background-color: rgb(246, 246, 246);
+}
+
+.nav-tabs a.active {
+    color: white; 
+    background-color: #007bff; 
+    border-color: #007bff; 
+    font-weight: bold;
+}

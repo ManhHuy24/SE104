@@ -1,0 +1,68 @@
+
+.title {
+    color: #45a049;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: left;
+    margin-top: 10px;
+}
+.note{
+    text-align: left;
+    font-size: 15px;
+    font-style: italic;
+    color: #636363;
+}
+.setting-label{
+    font-size: 17px;
+    margin-bottom: 8px;
+    color: #333333;
+    font-weight: 500;
+}
+.input-group {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    margin: 10px 0;
+}
+input {
+    padding: 8px;
+    border-radius: 4px;
+    width: 70%;
+    border: 1px solid #ccc;
+    transition: all 0.3s ease-in-out;
+}
+
+button {
+    padding: 8px 12px;
+    border: none;
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+.age-container, .score-container {
+    display: flex;
+    justify-content: space-between; 
+    gap: 5px;
+}
+.input-agegroup, .input-scoregroup {
+    display: flex;
+    flex-direction: row; 
+    align-items: flex-start; 
+    width: fit-content;
+  }
+  
+  .input-agegroup label, .input-scoregroup label {
+    margin-right: 10px; /* Khoảng cách giữa label và input */
+  }
+  
+  .input-agegroup input, .input-scoregroup input {
+    margin-right: 10px; /* Khoảng cách giữa input và button */
+  }
+  
+ 

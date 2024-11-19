@@ -41,4 +41,94 @@
     cursor: not-allowed; /* Indicate non-editable */
 }
 
+/* Modal container */
+.modal-add-student {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.modal-content-add-student {
+    background-color: #fff;
+    width: 700px; /* Giảm kích thước modal */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    position: relative;
+}
+
+.close-add-student {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.title-add-student {
+    font-size: 18px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+/* Search bar */
+.search-bar-add-student {
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.search-input-add-student {
+    width: 80%; /* Giảm kích thước input */
+    padding: 6px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    transition: all 0.3s ease-in-out;
+}
+
+.table-add-student {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.table-add-student th,
+.table-add-student td {
+    border: 1px solid #ddd;
+    text-align: center;
+    padding: 8px;
+    font-size: 15px; 
+}
+
+
+.table-add-student th {
+    background-color: #4CAF50;
+    font-weight: bold;
+}
+
+.actions-add-student {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.save-btn-add-student {
+    background-color: #4CAF50;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.save-btn-add-student:hover {
+    background-color: #45a049;
+}
 
