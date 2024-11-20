@@ -138,7 +138,7 @@ const QuanLyMonHoc = () => {
                         <form onSubmit={handleEditSubmit}>
                         <div className="form-group">
                                 <label>Mã môn học:</label>
-                                <input type="text" name="name" placeholder="1" required />
+                                <input type="text" name="name" placeholder="1" required readOnly className="styled-input read-only-input" />
                             </div>
                         <div className="form-group">
                                 <label>Tên môn học:</label>

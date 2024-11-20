@@ -123,7 +123,7 @@ const QuanLyLopHoc = () => {
                             <form className="form-add-class">
                                 <div className="form-row-add-class">
                                     <label>Mã lớp học:</label>
-                                    <input type="text" name="classname" placeholder="1" />
+                                    <input type="text" name="classname" placeholder="1" readOnly className="styled-input read-only-input"/>
                                 </div>
                                 <div className="form-row-add-class">
                                     <label>Tên lớp học:</label>
