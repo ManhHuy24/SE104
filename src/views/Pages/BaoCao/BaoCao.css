@@ -10,26 +10,59 @@
     margin-right: 20px; 
 }
 
-.nav-tabs a {
+.nav-tabs button {
     display: inline-block;
     padding: 10px 20px; 
     font-size: 16px; 
     color: black; 
+    background-color: transparent; 
+    border: 1px solid transparent; 
+    cursor: pointer;
     text-decoration: none; 
     transition: all 0.3s ease; 
 }
 
-.nav-tabs a:hover {
-    color:#2d692f;
-    font-size: 18px;
-    border-radius: 3px;
-    border: 1px solid;
-    background-color: rgb(246, 246, 246);
+.nav-tabs button:hover {
+    color: #2d692f; 
+    border: 1px solid #4CAF50; 
+    background-color: rgb(241, 241, 241); 
+    border-radius: 4px; 
 }
 
-.nav-tabs a.active {
-    color: white; 
-    background-color: #007bff; 
-    border-color: #007bff; 
+.nav-tabs .active button {
+    color: black; 
+    background-color: white; 
+    border: 1px solid #4CAF50; 
+    font-weight:600;
+    border-radius: 4px; 
+}
+
+.title-report {
+    color: #45a049;
+    font-size: 20px; 
     font-weight: bold;
+    text-align: center; 
+    margin-bottom: 20px; 
+}
+
+
+/* Đảm bảo responsive */
+@media (max-width: 768px) {
+    .nav-tabs {
+        justify-content: center; 
+        flex-wrap: wrap;
+    }
+
+    .nav-tabs li {
+        margin-bottom: 10px; 
+
+    .search-input {
+        width: 100%; 
+    }
+
+    .select-group-horizontal {
+        flex-direction: column; 
+        gap: 5px; 
+    }
+    }
 }
