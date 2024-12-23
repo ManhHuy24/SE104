@@ -63,7 +63,11 @@ cd SE104
 
 ### 3. Setting Up the Frontend
 
-1. Navigate to the project's root directory:
+1. Navigate to the `frontend` directory:
+
+   ```bash
+   cd frontend
+   ```
 
 2. Install dependencies:
 
@@ -91,7 +95,7 @@ cd SE104
      ```
 
 2. Start the frontend server:
-   - Navigate to the project's root directory and run:
+   - Navigate to the `frontend` directory and run:
 
      ```bash
      npm start
