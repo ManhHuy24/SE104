@@ -1,9 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './QuanLyLopHoc.css';
 
 const QuanLyLopHoc = () => {
     const [showAddClassModel, setShowAddClassModel] = useState(false);
+    const [className, setClassName] = useState('');
     const [showEditClassModel, setShowEditClassModel] = useState(false);
+    const [classes, setClasses] = useState([]); // State to hold class data
+    const [searchQuery, setSearchQuery] = useState(''); // State for search query
+    const [grade, setGrade] = useState('Khối 10');
+
+     // Fetch data from the database
+     useEffect(() => {
+        const fetchClasses = async () => {
+            try {
+                const response = await fetch('http://localhost:5000/classes'); // Adjust API endpoint as necessary
+                if (!response.ok) {
+                    throw new Error('Failed to fetch classes');
+                }
+                const data = await response.json();
+                setClasses(data);
+            } catch (error) {
+                console.error('Error fetching classes:', error);
+            }
+        };
+
+        fetchClasses();
+    }, []);
 
     const handleAddClass = () => {
         setShowAddClassModel(true);
@@ -25,6 +47,41 @@ const QuanLyLopHoc = () => {
     const handleSearch = (event) => {
         const query = event.target.value.toLowerCase();
     };
+
+    const handleFormSubmit = async (event) => {
+        event.preventDefault(); // Prevent the default form submission behavior
+
+        const newClass = {
+            TenLop: className,
+            TenKhoi: grade,
+        };
+
+        try {
+            const response = await fetch('http://localhost:5000/classes', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newClass),
+            });
+
+            if (response.ok) {
+                console.log('Class added successfully');
+                // Optionally, close the modal and refresh the list of classes
+                setShowAddClassModel(false);
+            } else {
+                console.error('Failed to add class');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+    // Filtered class list based on search query
+    const filteredClasses = classes.filter((cls) =>
+        cls.TenLop.toLowerCase().includes(searchQuery) ||
+        cls.TenKhoi.toLowerCase().includes(searchQuery)
+    );
 
     return (
         <div className="container">
@@ -56,33 +113,21 @@ const QuanLyLopHoc = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td className="text-center">1</td>
-                            <td className="text-center">Lớp 10A1</td>
-                            <td className="text-center">Khối 10</td>
-                            <td className="text-center">
-                                <button className="btn btn-edit" onClick={() => handleEditClass()}>
-                                    <i className="bx bxs-edit"></i>
-                                </button>
-                            </td>
-                            <td className="text-center">
-                                <button className="btn btn-delete"><i className="bx bx-trash"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td className="text-center">2</td>
-                            <td className="text-center">Lớp 10A2</td>
-                            <td className="text-center">Khối 10</td>
-                            <td className="text-center">
-                                <button className="btn btn-edit" onClick={() => handleEditClass()}>
-                                    <i className="bx bxs-edit"></i>
-                                </button>
-                            </td>
-
-                            <td className="text-center">
-                                <button className="btn btn-delete"><i className="bx bx-trash"></i></button>
-                            </td>
-                        </tr>
+                        {filteredClasses.map((cls, index) => (
+                            <tr key={cls.MaLop}>
+                                <td className="text-center">{index + 1}</td>
+                                <td className="text-center">{cls.TenLop}</td>
+                                <td className="text-center">{cls.TenKhoi}</td>
+                                <td className="text-center">
+                                    <button className="btn btn-edit" onClick={() => handleEditClass()}>
+                                        <i className="bx bxs-edit"></i>
+                                    </button>
+                                </td>
+                                <td className="text-center">
+                                    <button className="btn btn-delete"><i className="bx bx-trash"></i></button>
+                                </td>
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
             </div>
