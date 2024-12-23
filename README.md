@@ -1,70 +1,146 @@
-# Getting Started with Create React App
+# Student Management System - SE104
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project is a Student Management System with a React frontend and a Node.js/Express backend.
+
+---
+
+## Prerequisites
+
+Ensure you have the following installed:
+
+- [Node.js](https://nodejs.org/) (v14 or later)
+- [npm](https://www.npmjs.com/)
+- A running instance of your database (e.g., MySQL or MongoDB)
+
+---
+
+## Getting Started
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/ManhHuy24/SE104.git
+cd SE104
+```
+
+---
+
+### 2. Setting Up the Backend
+
+1. Navigate to the `backend` directory:
+
+   ```bash
+   cd backend
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+3. Configure the `.env` file:
+   - Edit the `.env` file to set your database credentials:
+
+     ```env
+     DB_HOST=your-database-host
+     DB_USER=your-database-user
+     DB_PASS=your-database-password
+     DB_NAME=your-database-name
+     ```
+
+   - Replace `your-database-host`, `your-database-user`, `your-database-password`, and `your-database-name` with your actual database information.
+
+4. Start the backend server:
+
+   ```bash
+   node app.js
+   ```
+
+   - The backend will run on [http://localhost:5000](http://localhost:5000).
+
+---
+
+### 3. Setting Up the Frontend
+
+1. Navigate to the project's root directory:
+
+2. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+3. Start the frontend development server:
+
+   ```bash
+   npm start
+   ```
+
+   - The frontend will run on [http://localhost:3000](http://localhost:3000).
+
+---
+
+## Running the Application
+
+1. Make sure the backend server is running:
+   - Navigate to the `backend` directory and run:
+
+     ```bash
+     node app.js
+     ```
+
+2. Start the frontend server:
+   - Navigate to the project's root directory and run:
+
+     ```bash
+     npm start
+     ```
+
+3. Open [http://localhost:3000](http://localhost:3000) in your browser to view the application.
+
+---
 
 ## Available Scripts
 
-In the project directory, you can run:
+### Backend
 
-### `npm start`
+In the `backend` directory, you can run:
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- **`node app.js`**: Start the backend server.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Frontend
 
-### `npm test`
+In the project's root directory, you can run:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- **`npm start`**: Start the frontend development server.
+- **`npm run build`**: Build the frontend for production.
+- **`npm test`**: Run tests.
 
-### `npm run build`
+---
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Troubleshooting
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Backend `.env` Example
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Here's an example `.env` file for the backend:
 
-### `npm run eject`
+```env
+PORT=5000
+DB_HOST=localhost
+DB_USER=root
+DB_PASS=password123
+DB_NAME=student_db
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Common Issues
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+1. **Database connection error**: Ensure your database is running and the credentials in the `.env` file are correct.
+2. **Port conflicts**: Ensure no other application is running on ports 3000 (frontend) or 5000 (backend).
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+---
 
 ## Learn More
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- [React Documentation](https://reactjs.org/)
+- [Express Documentation](https://expressjs.com/)
