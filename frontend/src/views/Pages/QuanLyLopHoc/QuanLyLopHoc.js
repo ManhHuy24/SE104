@@ -52,8 +52,8 @@ const QuanLyLopHoc = () => {
         event.preventDefault(); // Prevent the default form submission behavior
 
         const newClass = {
-            TenLop: className,
-            TenKhoi: grade,
+            TenLop: className, // Value from form input
+            TenKhoi: grade,    // Value from dropdown selection
         };
 
         try {
@@ -66,11 +66,14 @@ const QuanLyLopHoc = () => {
             });
 
             if (response.ok) {
-                console.log('Class added successfully');
-                // Optionally, close the modal and refresh the list of classes
+                const data = await response.json();
+                console.log('Class added successfully', data);
+                alert(`Lớp học đã được thêm thành công với ID: ${data.id}`);
                 setShowAddClassModel(false);
+                fetchClasses(); // Refresh the list of classes
             } else {
-                console.error('Failed to add class');
+                const error = await response.json();
+                alert(`Failed to add class: ${error.error}`);
             }
         } catch (error) {
             console.error('Error:', error);
@@ -164,14 +167,14 @@ const QuanLyLopHoc = () => {
                         <div className="modal-content-add-class">
                             <span className="close-add-class" onClick={closeAddClassModel}>&times;</span>
                             <h2>Thêm lớp học</h2>
-                            <form className="form-add-class">
+                            <form className="form-add-class" onSubmit={handleFormSubmit}>
                                 <div className="form-row-add-class">
                                     <label>Tên lớp học:</label>
-                                    <input type="text" name="classname" placeholder="Lớp 10A1" />
+                                    <input type="text" name="classname" value={className} onChange={(e) => setClassName(e.target.value)} placeholder="Lớp 10A1" />
                                 </div>
                                 <div className="form-row-add-class">
                                     <label>Tên khối:</label>
-                                    <select name="grade">
+                                    <select name="grade" value={grade} onChange={(e) => setGrade(e.target.value)}>
                                         <option value="Khối 10">Khối 10</option>
                                         <option value="Khối 11">Khối 11</option>
                                         <option value="Khối 12">Khối 12</option>
