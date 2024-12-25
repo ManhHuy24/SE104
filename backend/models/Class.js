@@ -56,12 +56,22 @@ const Class = {
 
   // Update class details by ID
   updateById: async (id, classData) => {
+    // Step 1: Find or create TenKhoi in KHOILOP
+    const khoiQuery = 'SELECT MaKhoi FROM KHOILOP WHERE TenKhoi = ?';
+    const [khoiResult] = await db.query(khoiQuery, [classData.TenKhoi]);
+
+    let MaKhoi;
+    if (khoiResult.length > 0) {
+        MaKhoi = khoiResult[0].MaKhoi;
+    } else {
+        const insertKhoiQuery = 'INSERT INTO KHOILOP (TenKhoi) VALUES (?)';
+        const [insertResult] = await db.query(insertKhoiQuery, [classData.TenKhoi]);
+        MaKhoi = insertResult.insertId;
+    }
+
+    // Step 2: Update class details in LOP
     const query = 'UPDATE LOP SET TenLop = ?, MaKhoi = ? WHERE MaLop = ?';
-    const [result] = await db.query(query, [
-      classData.TenLop,
-      classData.MaKhoi,
-      id,
-    ]);
+    const [result] = await db.query(query, [classData.TenLop, MaKhoi, id]);
     return result;
   },
 
