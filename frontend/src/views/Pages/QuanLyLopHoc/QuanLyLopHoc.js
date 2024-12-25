@@ -7,6 +7,7 @@ const QuanLyLopHoc = () => {
     const [showEditClassModel, setShowEditClassModel] = useState(false);
     const [classes, setClasses] = useState([]); // State to hold class data
     const [searchQuery, setSearchQuery] = useState(''); // State for search query
+    const [filteredClasses, setFilteredClasses] = useState([]);
     const [grade, setGrade] = useState('Khối 10');
     const [editingClass, setEditingClass] = useState(null); // To hold the class being edited
 
@@ -18,6 +19,7 @@ const QuanLyLopHoc = () => {
             }
             const data = await response.json();
             setClasses(data);
+            setFilteredClasses(data); // Initially display all classes
         } catch (error) {
             console.error('Error fetching classes:', error);
         }
@@ -27,6 +29,27 @@ const QuanLyLopHoc = () => {
      useEffect(() => {
         fetchClasses();
     }, []);
+
+    // Normalize text for consistent searching
+    const normalizeText = (text) => {
+        return text.toLowerCase().replace(/\s+/g, ' ').trim(); // Lowercase, remove extra spaces
+    };
+
+    // Handle search input changes
+    const handleSearchChange = (event) => {
+        setSearchQuery(event.target.value); // Update the search query state
+    };
+
+    // Perform search on Enter key press
+    const handleKeyPress = (event) => {
+        if (event.key === 'Enter') {
+            const query = normalizeText(searchQuery);
+            const filtered = classes.filter((cls) =>
+                normalizeText(cls.TenLop).includes(query)
+            );
+            setFilteredClasses(filtered); // Update the filtered classes
+        }
+    };
 
     const handleAddClass = () => {
         setShowAddClassModel(true);
@@ -45,10 +68,6 @@ const QuanLyLopHoc = () => {
 
     const closeEditClassModel = () => {
         setShowEditClassModel(false);
-    };
-
-    const handleSearch = (event) => {
-        const query = event.target.value.toLowerCase();
     };
 
     const handleFormSubmit = async (event) => {
@@ -139,12 +158,6 @@ const QuanLyLopHoc = () => {
         }
     };
 
-    // Filtered class list based on search query
-    const filteredClasses = classes.filter((cls) =>
-        cls.TenLop.toLowerCase().includes(searchQuery) ||
-        cls.TenKhoi.toLowerCase().includes(searchQuery)
-    );
-
     return (
         <div className="container">
             <h1 className="h1.tiepnhan">Quản lý lớp học</h1>
@@ -161,7 +174,9 @@ const QuanLyLopHoc = () => {
                         type="text"
                         className="search-input"
                         placeholder="Tìm kiếm lớp học..."
-                        onChange={handleSearch}
+                        value={searchQuery}
+                        onChange={handleSearchChange}
+                        onKeyPress={handleKeyPress} // Trigger search on Enter
                     />
                 </div>
                 <table className="table">
