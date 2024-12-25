@@ -6,80 +6,195 @@ const Student = {
     try {
       const query = `
         SELECT 
-          hs.MaHocSinh, hs.TenHocSinh, DATE_FORMAT(hs.NgaySinh, '%d/%m/%Y') AS NgaySinh, hs.DiaChi, hs.Email,
-          l.TenLop, kl.TenKhoi, dsl.SiSo
+          hs.MaHocSinh, 
+          hs.TenHocSinh, 
+          DATE_FORMAT(hs.NgaySinh, '%Y-%m-%d') AS NgaySinh, 
+          hs.GioiTinh, 
+          hs.DiaChi, 
+          hs.Email,
+          l.TenLop, 
+          kl.TenKhoi, 
+          dsl.SiSo
         FROM HOCSINH hs
-        JOIN CT_DSL ct ON hs.MaHocSinh = ct.MaHocSinh
-        JOIN DANHSACHLOP dsl ON ct.MaDanhSachLop = dsl.MaDanhSachLop
-        JOIN LOP l ON dsl.MaLop = l.MaLop
-        JOIN KHOILOP kl ON l.MaKhoi = kl.MaKhoi;
+        LEFT JOIN CT_DSL ct ON hs.MaHocSinh = ct.MaHocSinh
+        LEFT JOIN DANHSACHLOP dsl ON ct.MaDanhSachLop = dsl.MaDanhSachLop
+        LEFT JOIN LOP l ON dsl.MaLop = l.MaLop
+        LEFT JOIN KHOILOP kl ON l.MaKhoi = kl.MaKhoi;
       `;
       const [rows] = await db.query(query);
       return rows;
     } catch (err) {
-      throw new Error('Error fetching students: ' + err.message);
+      throw new Error(`Error fetching students: ${err.message}`);
+    }
+  },
+
+  // Fetch students filtered by school year
+  getByYear: async (schoolYear) => {
+    try {
+      const [year1, year2] = schoolYear.split('-').map(Number);
+      const query = `
+        SELECT DISTINCT
+          hs.MaHocSinh, 
+          hs.TenHocSinh, 
+          DATE_FORMAT(hs.NgaySinh, '%Y-%m-%d') AS NgaySinh, 
+          hs.GioiTinh,
+          hs.DiaChi, 
+          hs.Email,
+          l.TenLop,
+          kl.TenKhoi,
+          dsl.SiSo
+        FROM HOCSINH hs
+        JOIN CT_DSL ct ON hs.MaHocSinh = ct.MaHocSinh
+        JOIN DANHSACHLOP dsl ON ct.MaDanhSachLop = dsl.MaDanhSachLop
+        JOIN LOP l ON dsl.MaLop = l.MaLop
+        JOIN KHOILOP kl ON l.MaKhoi = kl.MaKhoi
+        JOIN NAMHOC nh ON dsl.MaNamHoc = nh.MaNamHoc
+        WHERE nh.Nam1 = ? AND nh.Nam2 = ?
+      `;
+      
+      const [rows] = await db.query(query, [year1, year2]);
+      return rows;
+    } catch (err) {
+      console.error('Database error:', err);
+      throw new Error('Error fetching students by year: ' + err.message);
     }
   },
 
   // Fetch a student by ID
   getById: async (id) => {
     try {
-      const query = 'SELECT * FROM HOCSINH WHERE MaHocSinh = ?';
+      const query = `
+        SELECT 
+          hs.MaHocSinh, hs.TenHocSinh, DATE_FORMAT(hs.NgaySinh, '%d/%m/%Y') AS NgaySinh, 
+          hs.GioiTinh, hs.DiaChi, hs.Email 
+        FROM HOCSINH hs 
+        WHERE hs.MaHocSinh = ?`;
       const [rows] = await db.query(query, [id]);
       return rows[0];
     } catch (err) {
-      throw new Error('Error fetching student: ' + err.message);
+      throw new Error(`Error fetching student: ${err.message}`);
     }
   },
 
   // Add a new student
-  create: async (student) => {
-    try {
-      const query =
-        'INSERT INTO HOCSINH (MaHocSinh, TenHocSinh, NgaySinh, DiaChi, Email) VALUES (?, ?, ?, ?, ?)';
+// Add a new student
+create: async (student) => {
+  try {
+      const query = `
+          INSERT INTO HOCSINH (TenHocSinh, NgaySinh, GioiTinh, DiaChi, Email) 
+          VALUES (?, ?, ?, ?, ?)
+      `;
       const [result] = await db.query(query, [
-        student.MaHocSinh,
-        student.TenHocSinh,
-        student.NgaySinh,
-        student.DiaChi,
-        student.Email,
+          student.TenHocSinh,
+          student.NgaySinh,
+          student.GioiTinh,
+          student.DiaChi,
+          student.Email,
       ]);
-      return result;
-    } catch (err) {
-      throw new Error('Error adding student: ' + err.message);
-    }
+
+      return { MaHocSinh: result.insertId };
+  } catch (err) {
+      throw new Error(`Error adding student: ${err.message}`);
+  }
   },
+
 
   // Update student details
   updateById: async (id, student) => {
     try {
-      const query = `
-        UPDATE HOCSINH 
-        SET TenHocSinh = ?, NgaySinh = ?, DiaChi = ?, Email = ? 
-        WHERE MaHocSinh = ?`;
-      const [result] = await db.query(query, [
-        student.TenHocSinh,
-        student.NgaySinh,
-        student.DiaChi,
-        student.Email,
-        id,
-      ]);
-      return result;
-    } catch (err) {
-      throw new Error('Error updating student: ' + err.message);
-    }
-  },
+        const currentStudentQuery = `SELECT * FROM HOCSINH WHERE MaHocSinh = ?`;
+        const [currentStudentRows] = await db.query(currentStudentQuery, [id]);
 
-  // Delete a student
+        if (currentStudentRows.length === 0) {
+            throw new Error('Student not found');
+        }
+
+        const currentStudent = currentStudentRows[0];
+
+        const updatedStudent = {
+            TenHocSinh: student.TenHocSinh || currentStudent.TenHocSinh,
+            NgaySinh: student.NgaySinh || currentStudent.NgaySinh,
+            GioiTinh: student.GioiTinh || currentStudent.GioiTinh,
+            DiaChi: student.DiaChi || currentStudent.DiaChi,
+            Email: student.Email || currentStudent.Email,
+        };
+
+        const updateQuery = `
+            UPDATE HOCSINH 
+            SET TenHocSinh = ?, NgaySinh = ?, GioiTinh = ?, DiaChi = ?, Email = ? 
+            WHERE MaHocSinh = ?
+        `;
+        const [result] = await db.query(updateQuery, [
+            updatedStudent.TenHocSinh,
+            updatedStudent.NgaySinh,
+            updatedStudent.GioiTinh,
+            updatedStudent.DiaChi,
+            updatedStudent.Email,
+            id,
+        ]);
+
+        return result;
+    } catch (err) {
+        throw new Error(`Error updating student: ${err.message}`);
+    }
+},
+
+
+  // Delete a student method remains unchanged
   deleteById: async (id) => {
     try {
-      const query = 'DELETE FROM HOCSINH WHERE MaHocSinh = ?';
-      const [result] = await db.query(query, [id]);
+      // Start a transaction
+      await db.query('START TRANSACTION');
+  
+      // Delete from BD_THANHPHAN
+      await db.query(`
+        DELETE BD_THANHPHAN
+        FROM BD_THANHPHAN
+        JOIN BD_MONHOC ON BD_THANHPHAN.MaBD_MH = BD_MONHOC.MaBD_MH
+        JOIN BANGDIEM ON BD_MONHOC.MaBangDiem = BANGDIEM.MaBangDiem
+        JOIN CT_DSL ON BANGDIEM.MaCT_DSL = CT_DSL.MaCT_DSL
+        WHERE CT_DSL.MaHocSinh = ?
+      `, [id]);
+  
+      // Delete from BD_MONHOC
+      await db.query(`
+        DELETE BD_MONHOC
+        FROM BD_MONHOC
+        JOIN BANGDIEM ON BD_MONHOC.MaBangDiem = BANGDIEM.MaBangDiem
+        JOIN CT_DSL ON BANGDIEM.MaCT_DSL = CT_DSL.MaCT_DSL
+        WHERE CT_DSL.MaHocSinh = ?
+      `, [id]);
+  
+      // Delete from BANGDIEM
+      await db.query(`
+        DELETE BANGDIEM
+        FROM BANGDIEM
+        JOIN CT_DSL ON BANGDIEM.MaCT_DSL = CT_DSL.MaCT_DSL
+        WHERE CT_DSL.MaHocSinh = ?
+      `, [id]);
+  
+      // Delete from CT_DSL
+      await db.query(`
+        DELETE FROM CT_DSL
+        WHERE MaHocSinh = ?
+      `, [id]);
+  
+      // Finally, delete the student
+      const [result] = await db.query(`
+        DELETE FROM HOCSINH
+        WHERE MaHocSinh = ?
+      `, [id]);
+  
+      // Commit the transaction
+      await db.query('COMMIT');
+  
       return result;
     } catch (err) {
-      throw new Error('Error deleting student: ' + err.message);
+      // Rollback the transaction in case of an error
+      await db.query('ROLLBACK');
+      throw new Error(`Error deleting student: ${err.message}`);
     }
-  },
+  },  
 };
 
 module.exports = Student;

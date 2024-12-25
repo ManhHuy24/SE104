@@ -7,10 +7,42 @@ const studentController = {
       const students = await Student.getAll();
       res.status(200).json(students);
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: error.message });
+      console.error(`Error fetching students: ${error.message}`);
+      res.status(500).json({ message: 'Failed to fetch students' });
     }
   },
+
+  // Fetch students by year
+  getStudentsByYear: async (req, res) => {
+    try {
+      const { year } = req.params;
+      console.log('Received year parameter:', year);
+
+      if (!year || !year.includes('-')) {
+        return res.status(400).json({
+          message: 'Invalid year format. Expected format: YYYY-YYYY'
+        });
+      }
+
+      const students = await Student.getByYear(year);
+      console.log('Found students:', students.length);
+
+      if (!students || students.length === 0) {
+        return res.status(404).json({
+          message: `No students found for the school year ${year}`
+        });
+      }
+
+      res.status(200).json(students);
+    } catch (error) {
+      console.error('Controller error:', error);
+      res.status(500).json({
+        message: 'Internal server error',
+        error: error.message
+      });
+    }
+  },
+
 
   // Fetch a student by ID
   getStudentById: async (req, res) => {
@@ -21,8 +53,8 @@ const studentController = {
       }
       res.status(200).json(student);
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: error.message });
+      console.error(`Error fetching student: ${error.message}`);
+      res.status(500).json({ message: 'Failed to fetch student' });
     }
   },
 
@@ -33,8 +65,8 @@ const studentController = {
       const result = await Student.create(newStudent);
       res.status(201).json({ id: result.insertId, message: 'Student added successfully' });
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: error.message });
+      console.error(`Error adding student: ${error.message}`);
+      res.status(500).json({ message: 'Failed to add student' });
     }
   },
 
@@ -48,8 +80,8 @@ const studentController = {
       }
       res.status(200).json({ message: 'Student updated successfully' });
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: error.message });
+      console.error(`Error updating student: ${error.message}`);
+      res.status(500).json({ message: 'Failed to update student' });
     }
   },
 
@@ -62,10 +94,30 @@ const studentController = {
       }
       res.status(200).json({ message: 'Student deleted successfully' });
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: error.message });
+      console.error(`Error deleting student: ${error.message}`);
+      res.status(500).json({ message: 'Failed to delete student' });
     }
   },
+};
+
+const bulkImportStudents = async (req, res) => {
+  try {
+      const { students } = req.body; // Array of students from the frontend
+      if (!Array.isArray(students) || students.length === 0) {
+          return res.status(400).json({ message: 'No students provided' });
+      }
+      
+      const results = [];
+      for (const student of students) {
+          const result = await Student.create(student);
+          results.push(result);
+      }
+
+      res.status(201).json({ message: 'Students imported successfully', results });
+  } catch (error) {
+      console.error(`Error importing students: ${error.message}`);
+      res.status(500).json({ message: 'Failed to import students' });
+  }
 };
 
 module.exports = studentController;
