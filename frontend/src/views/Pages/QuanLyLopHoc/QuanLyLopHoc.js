@@ -8,6 +8,7 @@ const QuanLyLopHoc = () => {
     const [classes, setClasses] = useState([]); // State to hold class data
     const [searchQuery, setSearchQuery] = useState(''); // State for search query
     const [grade, setGrade] = useState('Khối 10');
+    const [editingClass, setEditingClass] = useState(null); // To hold the class being edited
 
     const fetchClasses = async () => {
         try {
@@ -35,8 +36,10 @@ const QuanLyLopHoc = () => {
         setShowAddClassModel(false);
     };
 
-
-    const handleEditClass = () => {
+    const handleEditClass = (cls) => {
+        setEditingClass(cls); // Set the class being edited
+        setClassName(cls.TenLop); // Populate the form with the current name
+        setGrade(cls.TenKhoi); // Populate the form with the current grade
         setShowEditClassModel(true);
     };
 
@@ -106,6 +109,36 @@ const QuanLyLopHoc = () => {
         }
     };
 
+    const handleEditFormSubmit = async (event) => {
+        event.preventDefault();
+    
+        const updatedClass = {
+            TenLop: className,
+            TenKhoi: grade,
+        };
+    
+        try {
+            const response = await fetch(`http://localhost:5000/classes/${editingClass.MaLop}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedClass),
+            });
+    
+            if (response.ok) {
+                alert('Cập nhật lớp học thành công!');
+                setShowEditClassModel(false);
+                fetchClasses(); // Refresh the list of classes
+            } else {
+                const error = await response.json();
+                alert(`Không thể cập nhật lớp học: ${error.error}`);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
     // Filtered class list based on search query
     const filteredClasses = classes.filter((cls) =>
         cls.TenLop.toLowerCase().includes(searchQuery) ||
@@ -148,7 +181,7 @@ const QuanLyLopHoc = () => {
                                 <td className="text-center">{cls.TenLop}</td>
                                 <td className="text-center">{cls.TenKhoi}</td>
                                 <td className="text-center">
-                                    <button className="btn btn-edit" onClick={() => handleEditClass()}>
+                                    <button className="btn btn-edit" onClick={() => handleEditClass(cls)}>
                                         <i className="bx bxs-edit"></i>
                                     </button>
                                 </td>
@@ -194,18 +227,18 @@ const QuanLyLopHoc = () => {
                         <div className="modal-content-add-class">
                             <span className="close-add-class" onClick={closeEditClassModel}>&times;</span>
                             <h2>Chỉnh sửa lớp học</h2>
-                            <form className="form-add-class">
+                            <form className="form-add-class" onSubmit={handleEditFormSubmit}>
                                 <div className="form-row-add-class">
                                     <label>Mã lớp học:</label>
-                                    <input type="text" name="classname" placeholder="1" readOnly className="styled-input read-only-input"/>
+                                    <input type="text" name="classname" value={editingClass?.MaLop || ''} placeholder="1" readOnly className="styled-input read-only-input"/>
                                 </div>
                                 <div className="form-row-add-class">
                                     <label>Tên lớp học:</label>
-                                    <input type="text" name="classname" placeholder="Lớp 10A1" />
+                                    <input type="text" name="classname" value={className} onChange={(e) => setClassName(e.target.value)} placeholder="Lớp 10A1" />
                                 </div>
                                 <div className="form-row-add-class">
                                     <label>Tên khối:</label>
-                                    <select name="grade">
+                                    <select name="grade" value={grade} onChange={(e) => setGrade(e.target.value)}>
                                         <option value="Khối 10">Khối 10</option>
                                         <option value="Khối 11">Khối 11</option>
                                         <option value="Khối 12">Khối 12</option>
