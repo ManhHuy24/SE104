@@ -36,7 +36,7 @@ const Student = {
         SELECT DISTINCT
           hs.MaHocSinh, 
           hs.TenHocSinh, 
-          DATE_FORMAT(hs.NgaySinh, '%d/%m/%Y') AS NgaySinh, 
+          DATE_FORMAT(hs.NgaySinh, '%Y-%m-%d') AS NgaySinh, 
           hs.GioiTinh,
           hs.DiaChi, 
           hs.Email,

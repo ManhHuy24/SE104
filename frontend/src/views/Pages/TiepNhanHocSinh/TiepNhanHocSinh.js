@@ -9,6 +9,7 @@ const TiepNhanHocSinh = () => {
     const [students, setStudents] = useState([]);
     const [filteredStudents, setFilteredStudents] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
+    const [thamso, setThamso] = useState(null);
 
     const formatDate = (dateString) => {
         const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
@@ -16,22 +17,77 @@ const TiepNhanHocSinh = () => {
     };    
 
     useEffect(() => {
-        const fetchStudents = async () => {
+        const fetchData = async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/students');
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                // Fetch students
+                const studentsResponse = await fetch('http://localhost:5000/api/students');
+                if (!studentsResponse.ok) {
+                    throw new Error(`HTTP error! status: ${studentsResponse.status}`);
                 }
-                const data = await response.json();
-                setStudents(data);
-                setFilteredStudents(data);
+                const studentsData = await studentsResponse.json();
+                setStudents(studentsData);
+                setFilteredStudents(studentsData);
+
+                // Fetch thamso
+                const thamsoResponse = await fetch('http://localhost:5000/api/thamso');
+                if (!thamsoResponse.ok) {
+                    throw new Error(`HTTP error! status: ${thamsoResponse.status}`);
+                }
+                const thamsoData = await thamsoResponse.json();
+                setThamso(thamsoData);
             } catch (error) {
-                console.error('Error fetching students:', error);
+                console.error('Error fetching data:', error);
             }
         };
 
-        fetchStudents();
+        fetchData();
     }, []);
+
+    // Update the calculateAge function to be more precise
+    const calculateAge = (birthDate) => {
+        const today = new Date();
+        const birth = new Date(birthDate);
+        
+        // Calculate age
+        let age = today.getFullYear() - birth.getFullYear();
+        const monthDiff = today.getMonth() - birth.getMonth();
+        
+        // Adjust age if birthday hasn't occurred this year
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+            age--;
+        }
+        
+        return age;
+    };
+
+    // Update the validateAge function to add more logging
+    const validateAge = (birthDate) => {
+        if (!thamso) {
+            console.log('ThamSo not loaded yet');
+            return { isValid: false, message: 'Không thể kiểm tra tuổi, vui lòng thử lại' };
+        }
+        
+        const age = calculateAge(birthDate);
+        console.log('Calculated age:', age);
+        console.log('Min age allowed:', thamso.TuoiHocSinhToiThieu);
+        console.log('Max age allowed:', thamso.TuoiHocSinhToiDa);
+        
+        if (age < thamso.TuoiHocSinhToiThieu) {
+            return {
+                isValid: false,
+                message: `Tuổi học sinh không được nhỏ hơn ${thamso.TuoiHocSinhToiThieu} tuổi (hiện tại: ${age} tuổi)`
+            };
+        }
+        
+        if (age > thamso.TuoiHocSinhToiDa) {
+            return {
+                isValid: false,
+                message: `Tuổi học sinh không được lớn hơn ${thamso.TuoiHocSinhToiDa} tuổi (hiện tại: ${age} tuổi)`
+            };
+        }
+        
+        return { isValid: true };
+    };
 
     const handleSearch = (event) => {
         const query = event.target.value.toLowerCase();
@@ -53,9 +109,18 @@ const TiepNhanHocSinh = () => {
     const handleAddStudentSubmit = async (event) => {
         event.preventDefault();
         const formData = new FormData(event.target);
+        const birthDate = formData.get('dob');
+        
+        // Add validation
+        const ageValidation = validateAge(birthDate);
+        if (!ageValidation.isValid) {
+            alert(ageValidation.message);
+            return; // This line is crucial - it stops the function if validation fails
+        }
+
         const newStudent = {
             TenHocSinh: formData.get('name'),
-            NgaySinh: formData.get('dob'),
+            NgaySinh: birthDate,
             GioiTinh: formData.get('gender'),
             DiaChi: formData.get('address'),
             Email: formData.get('email'),
@@ -74,7 +139,6 @@ const TiepNhanHocSinh = () => {
                 throw new Error('Failed to add student');
             }
     
-            // Fetch the updated list of students
             const updatedResponse = await fetch('http://localhost:5000/api/students');
             if (!updatedResponse.ok) {
                 throw new Error('Failed to fetch updated students');
@@ -93,7 +157,7 @@ const TiepNhanHocSinh = () => {
             console.error('Error adding student:', error);
             alert('Failed to add student');
         }
-    };    
+    };   
     
     const closeEditStudentModel = () => {
         setShowEditStudentModel(false);
@@ -107,9 +171,18 @@ const TiepNhanHocSinh = () => {
     const handleEditStudentSubmit = async (event) => {
         event.preventDefault();
         const formData = new FormData(event.target);
+        const birthDate = formData.get('dob') || editingStudent.NgaySinh;
+        
+        // Add validation
+        const ageValidation = validateAge(birthDate);
+        if (!ageValidation.isValid) {
+            alert(ageValidation.message);
+            return; // This line is crucial - it stops the function if validation fails
+        }
+
         const updatedStudent = {
             TenHocSinh: formData.get('name') || editingStudent.TenHocSinh,
-            NgaySinh: formData.get('dob') || editingStudent.NgaySinh,
+            NgaySinh: birthDate,
             GioiTinh: formData.get('gender') || editingStudent.GioiTinh,
             DiaChi: formData.get('address') || editingStudent.DiaChi,
             Email: formData.get('email') || editingStudent.Email,
@@ -128,13 +201,27 @@ const TiepNhanHocSinh = () => {
                 throw new Error('Failed to update student');
             }
     
+            const updatedResponse = await fetch('http://localhost:5000/api/students');
+            if (!updatedResponse.ok) {
+                throw new Error('Failed to fetch updated students');
+            }
+    
+            const updatedStudents = await updatedResponse.json();
+    
+            setStudents(updatedStudents);
+            setFilteredStudents(
+                updatedStudents.filter((student) =>
+                    student.TenHocSinh.toLowerCase().includes(searchQuery)
+                )
+            );
+    
             alert('Cập nhật thành công!');
-            window.location.reload(); // Reload page on success
+            closeEditStudentModel();
         } catch (error) {
             console.error(error);
             alert('Không thể cập nhật học sinh');
         }
-    };    
+    };
 
     const handleDeleteStudent = async (id) => {
         if (window.confirm('Are you sure you want to delete this student?')) {

@@ -10,9 +10,16 @@ const DanhSachHocSinh = () => {
     const [filteredStudents, setFilteredStudents] = useState([]);
 
     const formatDate = (dateString) => {
+        if (!dateString) {
+            return 'N/A'; // Default for missing dates
+        }
+        const date = new Date(dateString);
+        if (isNaN(date)) {
+            return 'Invalid Date'; // Handle invalid date format
+        }
         const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
-        return new Intl.DateTimeFormat('en-GB', options).format(new Date(dateString));
-    };    
+        return new Intl.DateTimeFormat('en-GB', options).format(date);
+    };        
 
     useEffect(() => {
         const fetchStudents = async () => {
