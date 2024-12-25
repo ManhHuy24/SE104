@@ -1,4 +1,4 @@
-const Class = require('../models/Class');
+const Class = require('../models/Class.js');
 
 class ClassController {
   // Get all classes
@@ -60,7 +60,9 @@ class ClassController {
   // Delete class by ID
   static async deleteClass(req, res) {
     try {
+      console.log('Request Params:', req.params);  // Log the entire params object
       const { id } = req.params;
+      console.log(`Attempting to delete class with id: ${id}`);
       const result = await Class.deleteById(id);
       if (result.affectedRows === 0) {
         return res.status(404).json({ message: 'Class not found' });

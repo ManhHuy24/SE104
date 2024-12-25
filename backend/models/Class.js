@@ -67,9 +67,97 @@ const Class = {
 
   // Delete a class by ID
   deleteById: async (id) => {
-    const query = 'DELETE FROM LOP WHERE MaLop = ?';
-    const [result] = await db.query(query, [id]);
-    return result;
+    const connection = await db.getConnection();
+        
+        try {
+          await connection.beginTransaction();
+
+          // Log the deletion attempt
+          console.log('Starting deletion process for class ID:', id);
+
+          // First verify the class exists
+          const [classExists] = await connection.query(
+              'SELECT MaLop FROM LOP WHERE MaLop = ?',
+              [id]
+          );
+
+          if (classExists.length === 0) {
+              throw new Error('Class not found');
+          }
+
+          // 1. Delete from BD_THANHPHAN
+          await connection.query(`
+              DELETE bdtp 
+              FROM BD_THANHPHAN bdtp
+              JOIN BD_MONHOC bdm ON bdtp.MaBD_MH = bdm.MaBD_MH
+              JOIN BANGDIEM bd ON bdm.MaBangDiem = bd.MaBangDiem
+              JOIN CT_DSL ct ON bd.MaCT_DSL = ct.MaCT_DSL
+              JOIN DANHSACHLOP dsl ON ct.MaDanhSachLop = dsl.MaDanhSachLop
+              WHERE dsl.MaLop = ?
+          `, [id]);
+
+          // 2. Delete from BD_MONHOC
+          await connection.query(`
+              DELETE bdm 
+              FROM BD_MONHOC bdm
+              JOIN BANGDIEM bd ON bdm.MaBangDiem = bd.MaBangDiem
+              JOIN CT_DSL ct ON bd.MaCT_DSL = ct.MaCT_DSL
+              JOIN DANHSACHLOP dsl ON ct.MaDanhSachLop = dsl.MaDanhSachLop
+              WHERE dsl.MaLop = ?
+          `, [id]);
+
+          // 3. Delete from BANGDIEM
+          await connection.query(`
+              DELETE bd 
+              FROM BANGDIEM bd
+              JOIN CT_DSL ct ON bd.MaCT_DSL = ct.MaCT_DSL
+              JOIN DANHSACHLOP dsl ON ct.MaDanhSachLop = dsl.MaDanhSachLop
+              WHERE dsl.MaLop = ?
+          `, [id]);
+
+          // 4. Delete from BC_TKHK
+          await connection.query(`
+              DELETE bctk 
+              FROM BC_TKHK bctk
+              JOIN DANHSACHLOP dsl ON bctk.MaDanhSachLop = dsl.MaDanhSachLop
+              WHERE dsl.MaLop = ?
+          `, [id]);
+
+          // 5. Delete from CT_DSL
+          await connection.query(`
+              DELETE ct 
+              FROM CT_DSL ct
+              JOIN DANHSACHLOP dsl ON ct.MaDanhSachLop = dsl.MaDanhSachLop
+              WHERE dsl.MaLop = ?
+          `, [id]);
+
+          // 6. Delete from DANHSACHLOP
+          await connection.query(
+              'DELETE FROM DANHSACHLOP WHERE MaLop = ?',
+              [id]
+          );
+
+          // 7. Finally delete from LOP
+          const [result] = await connection.query(
+              'DELETE FROM LOP WHERE MaLop = ?',
+              [id]
+          );
+
+          // If we got here, all deletes were successful
+          await connection.commit();
+          
+          console.log('Successfully deleted class and all related records');
+          return result;
+
+        } catch (error) {
+          // If anything fails, roll back all changes
+          await connection.rollback();
+          console.error('Error in deleteById:', error);
+          throw error;
+        } finally {
+          // Always release the connection back to the pool
+          connection.release();
+        }
   },
 
   // Get class roster (students in a class)

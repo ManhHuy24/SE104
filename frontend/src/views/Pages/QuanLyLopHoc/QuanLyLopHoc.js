@@ -9,21 +9,21 @@ const QuanLyLopHoc = () => {
     const [searchQuery, setSearchQuery] = useState(''); // State for search query
     const [grade, setGrade] = useState('Khối 10');
 
+    const fetchClasses = async () => {
+        try {
+            const response = await fetch(`http://localhost:5000/classes`); // Adjust API endpoint as necessary
+            if (!response.ok) {
+                throw new Error('Failed to fetch classes');
+            }
+            const data = await response.json();
+            setClasses(data);
+        } catch (error) {
+            console.error('Error fetching classes:', error);
+        }
+    };
+
      // Fetch data from the database
      useEffect(() => {
-        const fetchClasses = async () => {
-            try {
-                const response = await fetch('http://localhost:5000/classes'); // Adjust API endpoint as necessary
-                if (!response.ok) {
-                    throw new Error('Failed to fetch classes');
-                }
-                const data = await response.json();
-                setClasses(data);
-            } catch (error) {
-                console.error('Error fetching classes:', error);
-            }
-        };
-
         fetchClasses();
     }, []);
 
@@ -77,6 +77,32 @@ const QuanLyLopHoc = () => {
         }
     };
 
+    const handleDeleteClass = async (id) => {
+        
+        console.log(`Deleting class with ID: ${id}`); // Log ID
+        const confirmDelete = window.confirm('Bạn có chắc chắn muốn xóa lớp học này?');
+        if (!confirmDelete) return;
+
+        try {
+            const response = await fetch(`http://localhost:5000/classes/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                alert('Xóa lớp học thành công!');
+                setClasses(classes.filter((cls) => cls.MaLop !== id));
+            } else {
+                alert('Không thể xóa lớp học. Hãy thử lại.');
+            }
+        } catch (error) {
+            console.error('Error deleting class:', error);
+            alert('Đã xảy ra lỗi khi xóa lớp học.');
+        }
+    };
+
     // Filtered class list based on search query
     const filteredClasses = classes.filter((cls) =>
         cls.TenLop.toLowerCase().includes(searchQuery) ||
@@ -124,7 +150,7 @@ const QuanLyLopHoc = () => {
                                     </button>
                                 </td>
                                 <td className="text-center">
-                                    <button className="btn btn-delete"><i className="bx bx-trash"></i></button>
+                                    <button className="btn btn-delete" onClick={() => handleDeleteClass(cls.MaLop)}><i className="bx bx-trash"></i></button>
                                 </td>
                             </tr>
                         ))}
