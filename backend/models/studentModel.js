@@ -78,24 +78,24 @@ const Student = {
 
   // Add a new student
 // Add a new student
-create: async (student) => {
-  try {
-      const query = `
-          INSERT INTO HOCSINH (TenHocSinh, NgaySinh, GioiTinh, DiaChi, Email) 
-          VALUES (?, ?, ?, ?, ?)
-      `;
-      const [result] = await db.query(query, [
-          student.TenHocSinh,
-          student.NgaySinh,
-          student.GioiTinh,
-          student.DiaChi,
-          student.Email,
-      ]);
+  create: async (student) => {
+    try {
+        const query = `
+            INSERT INTO HOCSINH (TenHocSinh, NgaySinh, GioiTinh, DiaChi, Email) 
+            VALUES (?, ?, ?, ?, ?)
+        `;
+        const [result] = await db.query(query, [
+            student.TenHocSinh,
+            student.NgaySinh,
+            student.GioiTinh,
+            student.DiaChi,
+            student.Email,
+        ]);
 
-      return { MaHocSinh: result.insertId };
-  } catch (err) {
-      throw new Error(`Error adding student: ${err.message}`);
-  }
+        return { MaHocSinh: result.insertId };
+    } catch (err) {
+        throw new Error(`Error adding student: ${err.message}`);
+    }
   },
 
 
@@ -137,7 +137,7 @@ create: async (student) => {
     } catch (err) {
         throw new Error(`Error updating student: ${err.message}`);
     }
-},
+  },
 
 
   // Delete a student method remains unchanged

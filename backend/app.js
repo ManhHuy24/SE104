@@ -5,6 +5,8 @@ const bodyParserMiddleware = require('./middleware/bodyParserMiddleware');
 const studentRoutes = require('./routes/studentRoutes');
 const classRoute = require('./routes/classRoute');
 const thamsoRoutes = require('./routes/thamsoRoutes');
+const importRoutes = require('./routes/importRoutes');
+
 
 // Load environment variables
 dotenv.config();
@@ -19,6 +21,7 @@ app.use(bodyParserMiddleware);
 app.use('/api/students', studentRoutes);
 app.use('/classes', classRoute);
 app.use('/api/thamso', thamsoRoutes);
+app.use('/api', importRoutes);
 
 // Start server
 const PORT = process.env.PORT || 5000;

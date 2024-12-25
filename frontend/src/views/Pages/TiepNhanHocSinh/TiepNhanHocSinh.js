@@ -259,6 +259,52 @@ const TiepNhanHocSinh = () => {
         setShowModel(true);
     };
 
+    const handleImportFileSubmit = async (event) => {
+        event.preventDefault();
+        const file = event.target.file.files[0];
+    
+        if (!file) {
+            alert('Please select a file');
+            return;
+        }
+    
+        const formData = new FormData();
+        formData.append('file', file);
+    
+        try {
+            const response = await fetch('http://localhost:5000/api/import', {
+                method: 'POST',
+                body: formData,
+            });
+    
+            const data = await response.json();
+    
+            if (!response.ok) {
+                if (data.errors && data.errors.length > 0) {
+                    alert('Some rows could not be imported.');
+                } else {
+                    throw new Error(data.message || 'Failed to import file');
+                }
+            }
+    
+            const updatedResponse = await fetch('http://localhost:5000/api/students');
+            if (!updatedResponse.ok) {
+                throw new Error('Failed to fetch updated students');
+            }
+            const updatedStudents = await updatedResponse.json();
+            setStudents(updatedStudents);
+            setFilteredStudents(updatedStudents);
+    
+            closeModel();
+            alert('File processed successfully.');
+        } catch (error) {
+            console.error('Error importing file:', error);
+            alert('Failed to import file.');
+        }
+    };
+      
+    
+
     const closeModel = () => {
         setShowModel(false);
     };
@@ -426,7 +472,7 @@ const TiepNhanHocSinh = () => {
                 <div className="modal">
                     <div className="modal-content">
                         <span className="close" onClick={closeModel}>&times;</span>
-                        <form method="POST" encType="multipart/form-data">
+                        <form method="POST" encType="multipart/form-data" onSubmit={handleImportFileSubmit}>
                             <input type="file" name="file" />
                             <button type="submit">Nhập dữ liệu</button>
                         </form>
