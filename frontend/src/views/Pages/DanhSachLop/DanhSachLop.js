@@ -1,8 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './DanhSachLop.css'
 
 const DanhSachLop = () => {
     const [showAddStudentModel, setShowAddStudentModel] = useState(false);
+    const [students, setStudents] = useState([]);
+    const [filteredStudents, setFilteredStudents] = useState(students);
+
+    const handleSearch = (event) => {
+        const query = event.target.value.toLowerCase();
+        setFilteredStudents(
+            students.filter(student => 
+                student.name.toLowerCase().includes(query) || 
+                student.email.toLowerCase().includes(query)
+            )
+        );
+    };
+
+    const fetchStudents = async () => {
+        try {
+            const response = await fetch('http://localhost:5000/api/students');
+            const data = await response.json();
+            setStudents(data);
+        } catch (error) {
+            console.error('Error fetching students:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchStudents();
+    }, []);
+    
 
     const handleAddStudent = () => {
         setShowAddStudentModel(true);
@@ -11,12 +38,26 @@ const DanhSachLop = () => {
     const closeAddStudentModel = () => {
         setShowAddStudentModel(false);
     };
-    const handleSearch = (event) => {
-        const query = event.target.value.toLowerCase();
-    };
+    // const handleSearch = (event) => {
+    //     const query = event.target.value.toLowerCase();
+    // };
     const handleSearchStudent = (event) => {
         const query = event.target.value.toLowerCase();
     };
+
+    const deleteStudent = async (id) => {
+        if (!window.confirm('Are you sure you want to delete this student?')) return;
+        try {
+            const response = await fetch(`http://localhost:5000/api/students/${id}`, { method: 'DELETE' });
+            if (response.ok) {
+                setStudents(students.filter(student => student.id !== id));
+                fetchStudents();
+            }
+        } catch (error) {
+            console.error('Error deleting student:', error);
+        }
+    };
+    
 
     return (
         <div>
@@ -62,88 +103,73 @@ const DanhSachLop = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td className="text-center">1</td>
-                            <td className="text-center">Nguyễn A</td>
-                            <td className="text-center">Nam</td>
-                            <td className="text-center">11-11-2008</td>
-                            <td className="text-center">abc</td>
-                            <td className="text-center">123@gmail</td>
-                            <td className="text-center">
-                                <button className="btn btn-delete"><i className="bx bx-trash"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td className="text-center">2</td>
-                            <td className="text-center">Trần B</td>
-                            <td className="text-center">Nữ</td>
-                            <td className="text-center">02-02-2008</td>
-                            <td className="text-center">def</td>
-                            <td className="text-center">456@gmail</td>
-                            <td className="text-center">
-                                <button className="btn btn-delete"><i className="bx bx-trash"></i></button>
-                            </td>
-                        </tr>
+
+                        {students.map((student, index) => (
+                            <tr key={student.MaHocSinh}>
+                                <td className="text-center">{index + 1}</td>
+                                <td className="text-center">{student.TenHocSinh}</td>
+                                <td className="text-center">{student.GioiTinh}</td>
+                                <td className="text-center">{student.NgaySinh}</td>
+                                <td className="text-center">{student.DiaChi}</td>
+                                <td className="text-center">{student.Email}</td>
+                                <td className="text-center">
+                                    <button className="btn btn-delete" onClick={() => deleteStudent(student.MaHocSinh)}>
+                                        <i className="bx bx-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
             </div>
 
             {
-    showAddStudentModel && (
-        <div className="modal-add-student">
-            <div className="modal-content-add-student">
-                <span className="close-add-student" onClick={closeAddStudentModel}>&times;</span>
-                <h2 className="title-add-student">Thêm học sinh vào danh sách</h2>
-                <div className="search-bar-add-student">
-                    <input
-                        type="text"
-                        className="search-input-add-student"
-                        placeholder="Tìm kiếm học sinh..."
-                        onChange={handleSearchStudent}
-                    />
-                </div>
-                <table className="table-add-student">
-                    <thead>
-                        <tr>
-                            <th className="text-center"></th>
-                            <th className="text-center">STT</th>
-                            <th className="text-center">Họ và tên</th>
-                            <th className="text-center">Giới tính</th>
-                            <th className="text-center">Năm sinh</th>
-                            <th className="text-center">Địa chỉ</th>
-                            <th className="text-center">Email</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td className="text-center">
-                                <input type="checkbox" />
-                            </td>
-                            <td className="text-center">1</td>
-                            <td className="text-center">Nguyễn A</td>
-                            <td className="text-center">Nam</td>
-                            <td className="text-center">11-11-2008</td>
-                            <td className="text-center">abc</td>
-                            <td className="text-center">123@gmail</td>
-                        </tr>
-                        <tr>
-                            <td className="text-center">
-                                <input type="checkbox" />
-                            </td>
-                            <td className="text-center">2</td>
-                            <td className="text-center">Trần B</td>
-                            <td className="text-center">Nữ</td>
-                            <td className="text-center">02-02-2008</td>
-                            <td className="text-center">def</td>
-                            <td className="text-center">456@gmail</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <button type="submit" className="save-btn-add-student">Cập nhật</button>
-            </div>
-        </div>
-    )
-}
+                showAddStudentModel && (
+                    <div className="modal-add-student">
+                        <div className="modal-content-add-student">
+                            <span className="close-add-student" onClick={closeAddStudentModel}>&times;</span>
+                            <h2 className="title-add-student">Thêm học sinh vào danh sách</h2>
+                            <div className="search-bar-add-student">
+                                <input
+                                    type="text"
+                                    className="search-input-add-student"
+                                    placeholder="Tìm kiếm học sinh..."
+                                    onChange={handleSearchStudent}
+                                />
+                            </div>
+                            <table className="table-add-student">
+                                <thead>
+                                    <tr>
+                                        <th className="text-center"></th>
+                                        <th className="text-center">STT</th>
+                                        <th className="text-center">Họ và tên</th>
+                                        <th className="text-center">Giới tính</th>
+                                        <th className="text-center">Năm sinh</th>
+                                        <th className="text-center">Địa chỉ</th>
+                                        <th className="text-center">Email</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {students.map((student, index) => (
+                                        <tr key={student.id}>
+                                            <td className="text-center">
+                                                <input type="checkbox" />
+                                            </td>
+                                            <td className="text-center">{index + 1}</td>
+                                            <td className="text-center">{student.TenHocSinh}</td>
+                                            <td className="text-center">{student.GioiTinh}</td>
+                                            <td className="text-center">{student.NgaySinh}</td>
+                                            <td className="text-center">{student.DiaChi}</td>
+                                            <td className="text-center">{student.Email}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                            <button type="submit" className="save-btn-add-student">Cập nhật</button>
+                        </div>
+                    </div>
+                )
+            }
 
         </div>
     );
