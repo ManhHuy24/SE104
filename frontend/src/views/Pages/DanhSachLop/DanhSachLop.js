@@ -4,33 +4,37 @@ import './DanhSachLop.css'
 const DanhSachLop = () => {
     const [showAddStudentModel, setShowAddStudentModel] = useState(false);
     const [students, setStudents] = useState([]);
-    const [filteredStudents, setFilteredStudents] = useState(students);
-
-    const handleSearch = (event) => {
-        const query = event.target.value.toLowerCase();
-        setFilteredStudents(
-            students.filter(student => 
-                student.name.toLowerCase().includes(query) || 
-                student.email.toLowerCase().includes(query)
-            )
-        );
-    };
+    const [filteredStudents, setFilteredStudents] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
 
     const fetchStudents = async () => {
         try {
             const response = await fetch('http://localhost:5000/api/students');
             const data = await response.json();
             setStudents(data);
+            setFilteredStudents(data);
         } catch (error) {
             console.error('Error fetching students:', error);
         }
     };
 
+    const handleSearch = (event) => {
+        const query = event.target.value.toLowerCase();
+        setSearchQuery(query);
+        const filtered = students.filter((student) =>
+            student.TenHocSinh.toLowerCase().includes(query)
+        );
+        setFilteredStudents(filtered);
+    };
+
     useEffect(() => {
         fetchStudents();
     }, []);
-    
 
+    // useEffect(() => {
+    //     setFilteredStudents(students); // Sync filtered list with students
+    // }, [students]);
+    
     const handleAddStudent = () => {
         setShowAddStudentModel(true);
     };
@@ -38,19 +42,15 @@ const DanhSachLop = () => {
     const closeAddStudentModel = () => {
         setShowAddStudentModel(false);
     };
-    // const handleSearch = (event) => {
-    //     const query = event.target.value.toLowerCase();
-    // };
-    const handleSearchStudent = (event) => {
-        const query = event.target.value.toLowerCase();
-    };
 
     const deleteStudent = async (id) => {
         if (!window.confirm('Are you sure you want to delete this student?')) return;
         try {
             const response = await fetch(`http://localhost:5000/api/students/${id}`, { method: 'DELETE' });
             if (response.ok) {
-                setStudents(students.filter(student => student.id !== id));
+                const updatedStudents = students.filter(student => student.MaHocSinh !== id);
+                setStudents(updatedStudents);
+                setFilteredStudents(updatedStudents);
                 fetchStudents();
             }
         } catch (error) {
@@ -77,7 +77,7 @@ const DanhSachLop = () => {
             </div>
 
             <div className="button-group">
-                <button className="btn btn-primary" onClick={handleAddStudent}>
+                <button className="btn btn-primary" onClick={() => setShowAddStudentModel(true)}>
                     <i className="bx bx-plus"></i> Thêm học sinh vào danh sách
                 </button>
             </div>
@@ -87,6 +87,7 @@ const DanhSachLop = () => {
                         type="text"
                         className="search-input"
                         placeholder="Tìm kiếm..."
+                        value={searchQuery}
                         onChange={handleSearch}
                     />
                 </div>
@@ -104,7 +105,7 @@ const DanhSachLop = () => {
                     </thead>
                     <tbody>
 
-                        {students.map((student, index) => (
+                        {filteredStudents.map((student, index) => (
                             <tr key={student.MaHocSinh}>
                                 <td className="text-center">{index + 1}</td>
                                 <td className="text-center">{student.TenHocSinh}</td>
@@ -134,7 +135,8 @@ const DanhSachLop = () => {
                                     type="text"
                                     className="search-input-add-student"
                                     placeholder="Tìm kiếm học sinh..."
-                                    onChange={handleSearchStudent}
+                                    value={searchQuery}
+                                    onChange={handleSearch}
                                 />
                             </div>
                             <table className="table-add-student">
@@ -150,7 +152,7 @@ const DanhSachLop = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {students.map((student, index) => (
+                                    {filteredStudents.map((student, index) => (
                                         <tr key={student.id}>
                                             <td className="text-center">
                                                 <input type="checkbox" />
