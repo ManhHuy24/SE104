@@ -1,68 +1,65 @@
-.nav-tabs {
+/* Navigation Tabs */
+:root {
+    --primary-color: #4CAF50;
+    --primary-hover: #2d692f;
+    --bg-hover: #f1f1f1;
+    --spacing: 1.25rem;
+    --border-radius: 0.25rem;
+  }
+  
+  .nav-tabs {
     padding: 0;
-    list-style-type: none; 
-    display: flex; 
-    justify-content: flex-start; 
-    border-bottom: 1px solid #4CAF50; 
-}
-
-.nav-tabs li {
-    margin-right: 20px; 
-}
-
-.nav-tabs button {
-    display: inline-block;
-    padding: 10px 20px; 
-    font-size: 16px; 
-    color: black; 
-    background-color: transparent; 
-    border: 1px solid transparent; 
+    margin: 0;
+    list-style: none;
+    display: flex;
+    border-bottom: 2px solid var(--primary-color);
+    gap: var(--spacing);
+    flex-wrap: wrap;
+  }
+  
+  .nav-tabs button {
+    padding: 0.75rem 1.25rem;
+    font-size: 1rem;
+    color: currentColor;
+    background: transparent;
+    border: 2px solid transparent;
+    border-radius: var(--border-radius);
     cursor: pointer;
-    text-decoration: none; 
-    transition: all 0.3s ease; 
-}
-
-.nav-tabs button:hover {
-    color: #2d692f; 
-    border: 1px solid #4CAF50; 
-    background-color: rgb(241, 241, 241); 
-    border-radius: 4px; 
-}
-
-.nav-tabs .active button {
-    color: black; 
-    background-color: white; 
-    border: 1px solid #4CAF50; 
-    font-weight:600;
-    border-radius: 4px; 
-}
-
-.title-report {
-    color: #45a049;
-    font-size: 20px; 
-    font-weight: bold;
-    text-align: center; 
-    margin-bottom: 20px; 
-}
-
-
-/* Đảm bảo responsive */
-@media (max-width: 768px) {
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .nav-tabs button:hover {
+    color: var(--primary-hover);
+    border-color: var(--primary-color);
+    background-color: var(--bg-hover);
+  }
+  
+  .nav-tabs .active button {
+    background-color: white;
+    border-color: var(--primary-color);
+    font-weight: 600;
+  }
+  
+  .title-report {
+    color: var(--primary-color);
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: var(--spacing);
+  }
+  
+  @media (max-width: 768px) {
     .nav-tabs {
-        justify-content: center; 
-        flex-wrap: wrap;
+      justify-content: center;
     }
-
-    .nav-tabs li {
-        margin-bottom: 10px; 
-
-    .search-input {
-        width: 100%; 
-    }
-
+    
+    .search-input,
     .select-group-horizontal {
-        flex-direction: column; 
-        gap: 5px; 
+      width: 100%;
     }
+    
+    .select-group-horizontal {
+      flex-direction: column;
+      gap: 0.5rem;
     }
-}
+  }
