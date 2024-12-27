@@ -110,7 +110,6 @@ const TiepNhanHocSinh = () => {
         event.preventDefault();
         const formData = new FormData(event.target);
         const birthDate = formData.get('dob');
-        
         // Add validation
         const ageValidation = validateAge(birthDate);
         if (!ageValidation.isValid) {

@@ -4,6 +4,8 @@ const corsMiddleware = require('./middleware/corsMiddleware');
 const bodyParserMiddleware = require('./middleware/bodyParserMiddleware');
 const studentRoutes = require('./routes/studentRoutes');
 const classRoute = require('./routes/classRoute');
+const classListRoutes = require('./routes/classListRoute');
+const yearRoutes = require('./routes/yearRoute');
 const thamsoRoutes = require('./routes/thamsoRoutes');
 const importRoutes = require('./routes/importRoutes');
 
@@ -22,6 +24,8 @@ app.use('/api/students', studentRoutes);
 app.use('/classes', classRoute);
 app.use('/api/thamso', thamsoRoutes);
 app.use('/api', importRoutes);
+app.use('/api/class', classListRoutes);
+app.use('/api/years', yearRoutes);
 
 // Start server
 const PORT = process.env.PORT || 5000;
