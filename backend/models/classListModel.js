@@ -65,6 +65,40 @@ class ClassList {
             return acc;
         }, {});
     }
+
+    static async removeStudentFromClass(MaHocSinh, MaNamHoc, MaLop) {
+        try {
+            const [results] = await db.query(
+                `
+                SELECT COUNT(*) as count
+                FROM CT_DSL CT
+                JOIN DANHSACHLOP DS ON CT.MaDanhSachLop = DS.MaDanhSachLop
+                WHERE CT.MaHocSinh = ? AND DS.MaLop = ? AND DS.MaNamHoc = ?
+                `,
+                [MaHocSinh, MaLop, MaNamHoc]
+            );
+    
+            if (results[0].count === 0) {
+                throw new Error('Student is not assigned to this class');
+            }
+    
+            await db.query(
+                `
+                DELETE CT
+                FROM CT_DSL CT
+                JOIN DANHSACHLOP DS ON CT.MaDanhSachLop = DS.MaDanhSachLop
+                WHERE CT.MaHocSinh = ? AND DS.MaLop = ? AND DS.MaNamHoc = ?
+                `,
+                [MaHocSinh, MaLop, MaNamHoc]
+            );
+    
+            await this.updateSiSo(MaNamHoc, MaLop);
+    
+            return { message: 'Student removed from class successfully' };
+        } catch (err) {
+            throw err;
+        }
+    }    
 }
 
 module.exports = ClassList;

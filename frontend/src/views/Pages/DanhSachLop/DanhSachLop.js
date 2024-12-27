@@ -60,27 +60,74 @@ const DanhSachLop = () => {
         }
     };
 
-    const deleteStudent = async (id) => {
-        if (!window.confirm('Are you sure you want to delete this student?')) return;
+    const handleRemoveFromClass = async (studentId) => {
         try {
-            const response = await fetch(`http://localhost:5005/api/students/${id}`, { method: 'DELETE' });
-            if (response.ok) {
-                const updatedStudents = students.filter(student => student.MaHocSinh !== id);
-                setStudents(updatedStudents);
-                setFilteredStudents(updatedStudents);
-                fetchData();
+            // Fetch the student's class assignments from the API
+            const response = await fetch('http://localhost:5005/api/class/assignments');
+            if (!response.ok) throw new Error('Không thể lấy thông tin phân công lớp học.');
+    
+            const assignments = await response.json();
+    
+            // Find the class assigned to the student
+            const studentAssignedClass = assignments[studentId];
+            if (!studentAssignedClass) {
+                alert('Học sinh không thuộc lớp nào.');
+                return;
             }
+    
+            const classMapping = classes.find((c) => c.MaLop === studentAssignedClass);
+            if (!classMapping) {
+                alert('Không thể tìm thấy lớp học hợp lệ.');
+                return;
+            }
+    
+            const yearMapping = years.find((y) => `${y.Nam1}-${y.Nam2}` === selectedYear);
+            if (!yearMapping) {
+                alert('Không thể tìm thấy năm học hợp lệ.');
+                return;
+            }
+    
+            const normalizedYear = `${yearMapping.Nam1}-${yearMapping.Nam2}`;
+            console.log('Normalized Year:', normalizedYear);
+    
+            // Prepare payload
+            const payload = {
+                MaHocSinh: studentId,
+                MaNamHoc: normalizedYear,
+                MaLop: classMapping.MaLop,
+            };
+            console.log('Payload:', payload);
+    
+            // Call the API to remove the student
+            const removalResponse = await fetch('http://localhost:5005/api/class/remove-student', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
+    
+            if (!removalResponse.ok) {
+                const errorText = await removalResponse.text();
+                throw new Error(errorText);
+            }
+    
+            alert('Học sinh đã được xoá khỏi lớp.');
+            fetchData(); // Refresh data to update UI
         } catch (error) {
-            console.error('Error deleting student:', error);
+            console.error('Error removing student:', error);
+            alert('Có lỗi xảy ra khi xoá học sinh khỏi lớp.');
         }
-    };
+    };        
+    
+    const isAssignedToAnyClass = (studentId) => {
+        return assignedClasses[studentId]; // Check if student is assigned to any class
+    };    
 
     const handleSubmit = async () => {
         if (selectedStudents.length === 0) {
             alert('Vui lòng chọn ít nhất một học sinh.');
             return;
         }
-
+    
         // Check if any selected student is already assigned
         const alreadyAssigned = selectedStudents.filter((id) => assignedClasses[id]);
         if (alreadyAssigned.length > 0) {
@@ -90,41 +137,51 @@ const DanhSachLop = () => {
             alert(`Các học sinh sau đã được gán lớp: ${assignedNames}`);
             return;
         }
-
+    
         // Find mappings
         const yearMapping = years.find((y) => `${y.Nam1}-${y.Nam2}` === selectedYear);
         const classMapping = classes.find((c) => c.TenLop === selectedClass);
-
+    
         if (!yearMapping || !classMapping) {
             alert('Không thể tìm thấy thông tin năm học hoặc lớp học.');
             return;
         }
-
+    
         const payload = {
             MaNamHoc: yearMapping.MaNamHoc,
             MaLop: classMapping.MaLop,
             students: selectedStudents.map((id) => ({ MaHocSinh: id })),
         };
-
+    
         try {
             const response = await fetch('http://localhost:5005/api/class/add-students', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
             });
-
+    
             if (!response.ok) {
                 const errorText = await response.text();
                 throw new Error(errorText);
             }
-
+    
             alert('Học sinh đã được thêm vào lớp thành công!');
+    
+            // Update assignedClasses state dynamically
+            setAssignedClasses((prev) => {
+                const updatedAssignments = { ...prev };
+                selectedStudents.forEach((id) => {
+                    updatedAssignments[id] = classMapping.MaLop;
+                });
+                return updatedAssignments;
+            });
+    
             setSelectedStudents([]); // Reset selection after successful submission
         } catch (error) {
             console.error('Error submitting data:', error);
             alert('Có lỗi xảy ra khi thêm học sinh vào lớp.');
         }
-    };
+    };    
 
     return (
         <div>
@@ -184,6 +241,7 @@ const DanhSachLop = () => {
                                     <input
                                         type="checkbox"
                                         onChange={(e) => handleCheckboxChange(e, student.MaHocSinh)}
+                                        disabled={isAssignedToAnyClass(student.MaHocSinh)} // Disable checkbox if assigned to any class
                                     />
                                 </td>
                                 <td className="text-center">{index + 1}</td>
@@ -193,9 +251,16 @@ const DanhSachLop = () => {
                                 <td className="text-center">{student.DiaChi}</td>
                                 <td className="text-center">{student.Email}</td>
                                 <td className="text-center">
-                                    <button className="btn btn-delete" onClick={() => deleteStudent(student.MaHocSinh)}>
-                                        <i className="bx bx-trash"></i>
-                                    </button>
+                                    {isAssignedToAnyClass(student.MaHocSinh) ? (
+                                        <button
+                                            className="btn btn-remove"
+                                            onClick={() => handleRemoveFromClass(student.MaHocSinh)}
+                                        >
+                                            Remove
+                                        </button>
+                                    ) : (
+                                        '-'
+                                    )}
                                 </td>
                             </tr>
                         ))}
