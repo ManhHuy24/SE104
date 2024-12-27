@@ -169,67 +169,88 @@ const Student = {
   },
 
   // Delete a student method remains unchanged
+  // Delete a student method updated
   deleteById: async (id) => {
     try {
-      // Check if the student exists
-      const studentCheckQuery = `SELECT * FROM HOCSINH WHERE MaHocSinh = ?`;
-      const [studentRows] = await db.query(studentCheckQuery, [id]);
-      if (studentRows.length === 0) {
-          throw new Error('Student not found');
-      }
+        // Check if the student exists
+        const studentCheckQuery = `SELECT * FROM HOCSINH WHERE MaHocSinh = ?`;
+        const [studentRows] = await db.query(studentCheckQuery, [id]);
+        if (studentRows.length === 0) {
+            throw new Error('Student not found');
+        }
 
-      // Start a transaction
-      await db.query('START TRANSACTION');
-  
-      // Delete from BD_THANHPHAN
-      await db.query(`
-        DELETE BD_THANHPHAN
-        FROM BD_THANHPHAN
-        JOIN BD_MONHOC ON BD_THANHPHAN.MaBD_MH = BD_MONHOC.MaBD_MH
-        JOIN BANGDIEM ON BD_MONHOC.MaBangDiem = BANGDIEM.MaBangDiem
-        JOIN CT_DSL ON BANGDIEM.MaCT_DSL = CT_DSL.MaCT_DSL
-        WHERE CT_DSL.MaHocSinh = ?
-      `, [id]);
-  
-      // Delete from BD_MONHOC
-      await db.query(`
-        DELETE BD_MONHOC
-        FROM BD_MONHOC
-        JOIN BANGDIEM ON BD_MONHOC.MaBangDiem = BANGDIEM.MaBangDiem
-        JOIN CT_DSL ON BANGDIEM.MaCT_DSL = CT_DSL.MaCT_DSL
-        WHERE CT_DSL.MaHocSinh = ?
-      `, [id]);
-  
-      // Delete from BANGDIEM
-      await db.query(`
-        DELETE BANGDIEM
-        FROM BANGDIEM
-        JOIN CT_DSL ON BANGDIEM.MaCT_DSL = CT_DSL.MaCT_DSL
-        WHERE CT_DSL.MaHocSinh = ?
-      `, [id]);
-  
-      // Delete from CT_DSL
-      await db.query(`
-        DELETE FROM CT_DSL
-        WHERE MaHocSinh = ?
-      `, [id]);
-  
-      // Finally, delete the student
-      const [result] = await db.query(`
-        DELETE FROM HOCSINH
-        WHERE MaHocSinh = ?
-      `, [id]);
-  
-      // Commit the transaction
-      await db.query('COMMIT');
-  
-      return result;
+        // Fetch the MaDanhSachLop the student is associated with
+        const classQuery = `
+            SELECT MaDanhSachLop 
+            FROM CT_DSL 
+            WHERE MaHocSinh = ?
+        `;
+        const [classRows] = await db.query(classQuery, [id]);
+
+        // If the student is not associated with a class, proceed with deletion
+        const MaDanhSachLop = classRows.length > 0 ? classRows[0].MaDanhSachLop : null;
+
+        // Start a transaction
+        await db.query('START TRANSACTION');
+
+        // Delete from BD_THANHPHAN
+        await db.query(`
+            DELETE BD_THANHPHAN
+            FROM BD_THANHPHAN
+            JOIN BD_MONHOC ON BD_THANHPHAN.MaBD_MH = BD_MONHOC.MaBD_MH
+            JOIN BANGDIEM ON BD_MONHOC.MaBangDiem = BANGDIEM.MaBangDiem
+            JOIN CT_DSL ON BANGDIEM.MaCT_DSL = CT_DSL.MaCT_DSL
+            WHERE CT_DSL.MaHocSinh = ?
+        `, [id]);
+
+        // Delete from BD_MONHOC
+        await db.query(`
+            DELETE BD_MONHOC
+            FROM BD_MONHOC
+            JOIN BANGDIEM ON BD_MONHOC.MaBangDiem = BANGDIEM.MaBangDiem
+            JOIN CT_DSL ON BANGDIEM.MaCT_DSL = CT_DSL.MaCT_DSL
+            WHERE CT_DSL.MaHocSinh = ?
+        `, [id]);
+
+        // Delete from BANGDIEM
+        await db.query(`
+            DELETE BANGDIEM
+            FROM BANGDIEM
+            JOIN CT_DSL ON BANGDIEM.MaCT_DSL = CT_DSL.MaCT_DSL
+            WHERE CT_DSL.MaHocSinh = ?
+        `, [id]);
+
+        // Delete from CT_DSL
+        await db.query(`
+            DELETE FROM CT_DSL
+            WHERE MaHocSinh = ?
+        `, [id]);
+
+        // Finally, delete the student
+        const [result] = await db.query(`
+            DELETE FROM HOCSINH
+            WHERE MaHocSinh = ?
+        `, [id]);
+
+        // If the student was associated with a class, decrement the SiSo
+        if (MaDanhSachLop) {
+            await db.query(`
+                UPDATE DANHSACHLOP
+                SET SiSo = SiSo - 1
+                WHERE MaDanhSachLop = ?
+            `, [MaDanhSachLop]);
+        }
+
+        // Commit the transaction
+        await db.query('COMMIT');
+
+        return result;
     } catch (err) {
-      // Rollback the transaction in case of an error
-      await db.query('ROLLBACK');
-      throw new Error(`Error deleting student: ${err.message}`);
+        // Rollback the transaction in case of an error
+        await db.query('ROLLBACK');
+        throw new Error(`Error deleting student: ${err.message}`);
     }
-  },  
+  },
 
   addToClass: async (MaHocSinh, MaNamHoc, MaLop) => {
     try {
