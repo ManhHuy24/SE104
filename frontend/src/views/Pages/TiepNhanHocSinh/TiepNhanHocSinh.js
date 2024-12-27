@@ -20,7 +20,7 @@ const TiepNhanHocSinh = () => {
         const fetchData = async () => {
             try {
                 // Fetch students
-                const studentsResponse = await fetch('http://localhost:5000/api/students');
+                const studentsResponse = await fetch('http://localhost:5005/api/students');
                 if (!studentsResponse.ok) {
                     throw new Error(`HTTP error! status: ${studentsResponse.status}`);
                 }
@@ -29,7 +29,7 @@ const TiepNhanHocSinh = () => {
                 setFilteredStudents(studentsData);
 
                 // Fetch thamso
-                const thamsoResponse = await fetch('http://localhost:5000/api/thamso');
+                const thamsoResponse = await fetch('http://localhost:5005/api/thamso');
                 if (!thamsoResponse.ok) {
                     throw new Error(`HTTP error! status: ${thamsoResponse.status}`);
                 }
@@ -127,7 +127,7 @@ const TiepNhanHocSinh = () => {
         };
     
         try {
-            const response = await fetch('http://localhost:5000/api/students', {
+            const response = await fetch('http://localhost:5005/api/students', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -139,7 +139,7 @@ const TiepNhanHocSinh = () => {
                 throw new Error('Failed to add student');
             }
     
-            const updatedResponse = await fetch('http://localhost:5000/api/students');
+            const updatedResponse = await fetch('http://localhost:5005/api/students');
             if (!updatedResponse.ok) {
                 throw new Error('Failed to fetch updated students');
             }
@@ -189,7 +189,7 @@ const TiepNhanHocSinh = () => {
         };
     
         try {
-            const response = await fetch(`http://localhost:5000/api/students/${editingStudent.MaHocSinh}`, {
+            const response = await fetch(`http://localhost:5005/api/students/${editingStudent.MaHocSinh}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -201,7 +201,7 @@ const TiepNhanHocSinh = () => {
                 throw new Error('Failed to update student');
             }
     
-            const updatedResponse = await fetch('http://localhost:5000/api/students');
+            const updatedResponse = await fetch('http://localhost:5005/api/students');
             if (!updatedResponse.ok) {
                 throw new Error('Failed to fetch updated students');
             }
@@ -226,7 +226,7 @@ const TiepNhanHocSinh = () => {
     const handleDeleteStudent = async (id) => {
         if (window.confirm('Are you sure you want to delete this student?')) {
             try {
-                const response = await fetch(`http://localhost:5000/api/students/${id}`, {
+                const response = await fetch(`http://localhost:5005/api/students/${id}`, {
                     method: 'DELETE',
                 });
     
@@ -235,7 +235,7 @@ const TiepNhanHocSinh = () => {
                 }
     
                 // Refetch the updated list of students from the backend
-                const updatedResponse = await fetch('http://localhost:5000/api/students');
+                const updatedResponse = await fetch('http://localhost:5005/api/students');
                 if (!updatedResponse.ok) {
                     throw new Error(`HTTP error! status: ${updatedResponse.status}`);
                 }
@@ -272,7 +272,7 @@ const TiepNhanHocSinh = () => {
         formData.append('file', file);
     
         try {
-            const response = await fetch('http://localhost:5000/api/import', {
+            const response = await fetch('http://localhost:5005/api/import', {
                 method: 'POST',
                 body: formData,
             });
@@ -287,7 +287,7 @@ const TiepNhanHocSinh = () => {
                 }
             }
     
-            const updatedResponse = await fetch('http://localhost:5000/api/students');
+            const updatedResponse = await fetch('http://localhost:5005/api/students');
             if (!updatedResponse.ok) {
                 throw new Error('Failed to fetch updated students');
             }

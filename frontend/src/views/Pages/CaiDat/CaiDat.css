@@ -57,12 +57,16 @@ button:hover {
     width: fit-content;
   }
   
-  .input-agegroup label, .input-scoregroup label {
+.input-agegroup label, .input-scoregroup label {
     margin-right: 10px; /* Khoảng cách giữa label và input */
-  }
-  
-  .input-agegroup input, .input-scoregroup input {
+}
+
+.input-agegroup input, .input-scoregroup input {
     margin-right: 10px; /* Khoảng cách giữa input và button */
-  }
-  
- 
+}
+
+.save-button {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+}

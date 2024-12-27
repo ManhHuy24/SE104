@@ -9,7 +9,7 @@ const DanhSachLop = () => {
 
     const fetchStudents = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/students');
+            const response = await fetch('http://localhost:5005/api/students');
             const data = await response.json();
             setStudents(data);
             setFilteredStudents(data);
@@ -46,7 +46,7 @@ const DanhSachLop = () => {
     const deleteStudent = async (id) => {
         if (!window.confirm('Are you sure you want to delete this student?')) return;
         try {
-            const response = await fetch(`http://localhost:5000/api/students/${id}`, { method: 'DELETE' });
+            const response = await fetch(`http://localhost:5005/api/students/${id}`, { method: 'DELETE' });
             if (response.ok) {
                 const updatedStudents = students.filter(student => student.MaHocSinh !== id);
                 setStudents(updatedStudents);

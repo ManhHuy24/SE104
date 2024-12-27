@@ -24,9 +24,9 @@ const DanhSachHocSinh = () => {
     useEffect(() => {
         const fetchStudents = async () => {
             try {
-                let url = 'http://localhost:5000/api/students';
+                let url = 'http://localhost:5005/api/students';
                 if (selectedYear) {
-                    url = `http://localhost:5000/api/students/year/${selectedYear}`;
+                    url = `http://localhost:5005/api/students/year/${selectedYear}`;
                 }
         
                 console.log('Fetching from URL:', url);
