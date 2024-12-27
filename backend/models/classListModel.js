@@ -31,7 +31,7 @@ class ClassList {
             const [countResult] = await db.query(
                 `
                 SELECT COUNT(*) as SiSo
-                FROM HOCSINHLOP
+                FROM DANHSACHLOP
                 WHERE MaNamHoc = ? AND MaLop = ?
                 `,
                 [MaNamHoc, MaLop]
