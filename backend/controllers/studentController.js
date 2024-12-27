@@ -100,24 +100,4 @@ const studentController = {
   },
 };
 
-const bulkImportStudents = async (req, res) => {
-  try {
-      const { students } = req.body; // Array of students from the frontend
-      if (!Array.isArray(students) || students.length === 0) {
-          return res.status(400).json({ message: 'No students provided' });
-      }
-      
-      const results = [];
-      for (const student of students) {
-          const result = await Student.create(student);
-          results.push(result);
-      }
-
-      res.status(201).json({ message: 'Students imported successfully', results });
-  } catch (error) {
-      console.error(`Error importing students: ${error.message}`);
-      res.status(500).json({ message: 'Failed to import students' });
-  }
-};
-
 module.exports = studentController;

@@ -8,18 +8,18 @@ const DanhSachHocSinh = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedYear, setSelectedYear] = useState('');
     const [filteredStudents, setFilteredStudents] = useState([]);
-    const [years, setYears] = useState([]); // State for years
+    const [years, setYears] = useState([]);
 
     const formatDate = (dateString) => {
         if (!dateString) {
-            return 'N/A';
+            return 'Không xác định';
         }
         const date = new Date(dateString);
         if (isNaN(date)) {
-            return 'Invalid Date';
+            return 'Ngày không hợp lệ';
         }
         const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
-        return new Intl.DateTimeFormat('en-GB', options).format(date);
+        return new Intl.DateTimeFormat('vi-VN', options).format(date);
     };
 
     useEffect(() => {
@@ -27,17 +27,17 @@ const DanhSachHocSinh = () => {
             try {
                 const response = await fetch('http://localhost:5000/api/years');
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    throw new Error(`Lỗi HTTP! Trạng thái: ${response.status}`);
                 }
                 const data = await response.json();
                 if (Array.isArray(data)) {
                     setYears(data);
                 } else {
-                    throw new Error('Invalid data format received for years');
+                    throw new Error('Dữ liệu năm học không hợp lệ');
                 }
             } catch (error) {
-                console.error('Error fetching years:', error);
-                setError('Failed to load years');
+                console.error('Lỗi tải dữ liệu năm học:', error);
+                setError('Không thể tải danh sách niên khóa');
             }
         };
 
@@ -60,7 +60,7 @@ const DanhSachHocSinh = () => {
                         setError(`Không tìm thấy học sinh trong niên khóa ${selectedYear}`);
                         return;
                     }
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    throw new Error(`Lỗi HTTP! Trạng thái: ${response.status}`);
                 }
 
                 const data = await response.json();
@@ -69,11 +69,11 @@ const DanhSachHocSinh = () => {
                     setFilteredStudents(data);
                     setError(null);
                 } else {
-                    throw new Error('Invalid data format received');
+                    throw new Error('Dữ liệu học sinh không hợp lệ');
                 }
             } catch (error) {
-                console.error('Error fetching students:', error);
-                setError(error.message || 'Failed to load students');
+                console.error('Lỗi tải dữ liệu học sinh:', error);
+                setError(error.message || 'Không thể tải danh sách học sinh');
             } finally {
                 setLoading(false);
             }
@@ -95,7 +95,7 @@ const DanhSachHocSinh = () => {
         setSelectedYear(event.target.value);
     };
 
-    if (loading) return <div>Loading...</div>;
+    if (loading) return <div>Đang tải dữ liệu...</div>;
 
     return (
         <div>
@@ -103,20 +103,20 @@ const DanhSachHocSinh = () => {
             <div className="select-group">
                 <label htmlFor="year-select" className="select-label">Niên khóa</label>
                 <div className="custom-select">
-                <select
-                    id="year-select"
-                    name="year"
-                    className="styled-select"
-                    value={selectedYear}
-                    onChange={handleYearChange}
-                >
-                    <option value="">Tất cả</option>
-                    {years.map((year) => (
-                        <option key={year.MaNamHoc} value={`${year.Nam1}-${year.Nam2}`}>
-                            {`${year.Nam1}-${year.Nam2}`}
-                        </option>
-                    ))}
-                </select>
+                    <select
+                        id="year-select"
+                        name="year"
+                        className="styled-select"
+                        value={selectedYear}
+                        onChange={handleYearChange}
+                    >
+                        <option value="">Tất cả</option>
+                        {years.map((year) => (
+                            <option key={year.MaNamHoc} value={`${year.Nam1}-${year.Nam2}`}>
+                                {`${year.Nam1}-${year.Nam2}`}
+                            </option>
+                        ))}
+                    </select>
                     <span className="dropdown-icon"><i className="bx bx-chevron-down"></i></span>
                 </div>
             </div>
@@ -160,7 +160,7 @@ const DanhSachHocSinh = () => {
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="8">Không có dữ liệu</td>
+                                <td colSpan="8">Không tìm thấy học sinh phù hợp</td>
                             </tr>
                         )}
                     </tbody>
