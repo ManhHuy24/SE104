@@ -257,7 +257,28 @@ const Student = {
     } catch (err) {
         throw new Error(`Error adding student to class: ${err.message}`);
     }
-  }
+  },
+
+  // Fetch a student by Email
+  getByEmail: async (email) => {
+    try {
+        const query = `
+            SELECT 
+                hs.MaHocSinh, 
+                hs.TenHocSinh, 
+                DATE_FORMAT(hs.NgaySinh, '%Y-%m-%d') AS NgaySinh, 
+                hs.GioiTinh, 
+                hs.DiaChi, 
+                hs.Email
+            FROM HOCSINH hs
+            WHERE hs.Email = ?
+        `;
+        const [rows] = await db.query(query, [email]);
+        return rows[0]; // Return the first match or undefined if no match is found
+    } catch (err) {
+        throw new Error(`Error fetching student by email: ${err.message}`);
+    }
+  },
 };
 
 module.exports = Student;
