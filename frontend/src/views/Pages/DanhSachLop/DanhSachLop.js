@@ -18,6 +18,12 @@ const DanhSachLop = () => {
 
     const fetchData = async () => {
         try {
+<<<<<<< HEAD
+            const response = await fetch('http://localhost:5005/api/students');
+            const data = await response.json();
+            setStudents(data);
+            setFilteredStudents(data);
+=======
             const studentsResponse = await fetch('http://localhost:5000/api/students');
             const studentsData = await studentsResponse.json();
             setStudents(studentsData);
@@ -38,6 +44,7 @@ const DanhSachLop = () => {
             // Default year and class
             setSelectedYear(`${yearsData[0].Nam1}-${yearsData[0].Nam2}`);
             setSelectedClass(classesData[0].TenLop);
+>>>>>>> 19cd2dacac653faf9b7a7d017d4e52725c1dd509
         } catch (error) {
             console.error('Error fetching data:', error);
         }
@@ -63,7 +70,7 @@ const DanhSachLop = () => {
     const deleteStudent = async (id) => {
         if (!window.confirm('Are you sure you want to delete this student?')) return;
         try {
-            const response = await fetch(`http://localhost:5000/api/students/${id}`, { method: 'DELETE' });
+            const response = await fetch(`http://localhost:5005/api/students/${id}`, { method: 'DELETE' });
             if (response.ok) {
                 const updatedStudents = students.filter(student => student.MaHocSinh !== id);
                 setStudents(updatedStudents);

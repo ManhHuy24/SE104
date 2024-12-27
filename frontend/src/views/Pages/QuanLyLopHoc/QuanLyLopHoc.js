@@ -13,7 +13,7 @@ const QuanLyLopHoc = () => {
 
     const fetchClasses = async () => {
         try {
-            const response = await fetch(`http://localhost:5000/classes`); // Adjust API endpoint as necessary
+            const response = await fetch(`http://localhost:5005/classes`); // Adjust API endpoint as necessary
             if (!response.ok) {
                 throw new Error('Failed to fetch classes');
             }
@@ -79,7 +79,7 @@ const QuanLyLopHoc = () => {
         };
 
         try {
-            const response = await fetch('http://localhost:5000/classes', {
+            const response = await fetch('http://localhost:5005/classes', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -109,7 +109,7 @@ const QuanLyLopHoc = () => {
         if (!confirmDelete) return;
 
         try {
-            const response = await fetch(`http://localhost:5000/classes/${id}`, {
+            const response = await fetch(`http://localhost:5005/classes/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'
@@ -137,7 +137,7 @@ const QuanLyLopHoc = () => {
         };
     
         try {
-            const response = await fetch(`http://localhost:5000/classes/${editingClass.MaLop}`, {
+            const response = await fetch(`http://localhost:5005/classes/${editingClass.MaLop}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

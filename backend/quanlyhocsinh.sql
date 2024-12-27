@@ -4,7 +4,7 @@ use quanlyhocsinh;
 
 -- Tạo bảng NAMHOC
 CREATE TABLE NAMHOC (
-    MaNamHoc INT AUTO_INCREMENT PRIMARY KEY,
+    MaNamHoc VARCHAR(255) PRIMARY KEY,
     Nam1 INT,
     Nam2 INT
 );
@@ -26,7 +26,7 @@ CREATE TABLE LOP (
 -- Tạo bảng DANHSACHLOP
 CREATE TABLE DANHSACHLOP (
     MaDanhSachLop INT AUTO_INCREMENT PRIMARY KEY,
-    MaNamHoc INT,
+    MaNamHoc VARCHAR(255),
     MaLop INT,
     SiSo INT,
     FOREIGN KEY (MaNamHoc) REFERENCES NAMHOC(MaNamHoc),
@@ -58,7 +58,8 @@ CREATE TABLE THAMSO (
     TuoiHocSinhToiDa INT,
     SoLuongHocSinhToiDa INT,
     DiemToiDa FLOAT,
-    DiemToiThieu FLOAT
+    DiemToiThieu FLOAT,
+    DiemDat FLOAT
 );
 
 -- Tạo bảng MONHOC
@@ -76,7 +77,7 @@ CREATE TABLE HOCKY (
 -- Tạo bảng BC_TKMH
 CREATE TABLE BC_TKMH (
     MaBC_TKM INT AUTO_INCREMENT PRIMARY KEY,
-    MaNamHoc INT,
+    MaNamHoc VARCHAR(255),
     MaMonHoc INT,
     MaHocKy INT,
     FOREIGN KEY (MaNamHoc) REFERENCES NAMHOC(MaNamHoc),
