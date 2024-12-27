@@ -8,18 +8,41 @@ const DanhSachHocSinh = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedYear, setSelectedYear] = useState('');
     const [filteredStudents, setFilteredStudents] = useState([]);
+    const [years, setYears] = useState([]); // State for years
 
     const formatDate = (dateString) => {
         if (!dateString) {
-            return 'N/A'; // Default for missing dates
+            return 'N/A';
         }
         const date = new Date(dateString);
         if (isNaN(date)) {
-            return 'Invalid Date'; // Handle invalid date format
+            return 'Invalid Date';
         }
         const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
         return new Intl.DateTimeFormat('en-GB', options).format(date);
-    };        
+    };
+
+    useEffect(() => {
+        const fetchYears = async () => {
+            try {
+                const response = await fetch('http://localhost:5000/api/years');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                if (Array.isArray(data)) {
+                    setYears(data);
+                } else {
+                    throw new Error('Invalid data format received for years');
+                }
+            } catch (error) {
+                console.error('Error fetching years:', error);
+                setError('Failed to load years');
+            }
+        };
+
+        fetchYears();
+    }, []);
 
     useEffect(() => {
         const fetchStudents = async () => {
@@ -28,10 +51,8 @@ const DanhSachHocSinh = () => {
                 if (selectedYear) {
                     url = `http://localhost:5000/api/students/year/${selectedYear}`;
                 }
-        
-                console.log('Fetching from URL:', url);
+
                 const response = await fetch(url);
-                
                 if (!response.ok) {
                     if (response.status === 404) {
                         setStudents([]);
@@ -41,10 +62,8 @@ const DanhSachHocSinh = () => {
                     }
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
-        
+
                 const data = await response.json();
-                console.log('Received data:', data);
-        
                 if (Array.isArray(data)) {
                     setStudents(data);
                     setFilteredStudents(data);
@@ -59,7 +78,7 @@ const DanhSachHocSinh = () => {
                 setLoading(false);
             }
         };
-    
+
         fetchStudents();
     }, [selectedYear]);
 
@@ -84,18 +103,20 @@ const DanhSachHocSinh = () => {
             <div className="select-group">
                 <label htmlFor="year-select" className="select-label">Niên khóa</label>
                 <div className="custom-select">
-                    <select
-                        id="year-select"
-                        name="year"
-                        className="styled-select"
-                        value={selectedYear}
-                        onChange={handleYearChange}
-                    >
-                        <option value="">Tất cả</option>
-                        <option value="2022-2023">2022-2023</option>
-                        <option value="2023-2024">2023-2024</option>
-                        <option value="2024-2025">2024-2025</option>
-                    </select>
+                <select
+                    id="year-select"
+                    name="year"
+                    className="styled-select"
+                    value={selectedYear}
+                    onChange={handleYearChange}
+                >
+                    <option value="">Tất cả</option>
+                    {years.map((year) => (
+                        <option key={year.MaNamHoc} value={`${year.Nam1}-${year.Nam2}`}>
+                            {`${year.Nam1}-${year.Nam2}`}
+                        </option>
+                    ))}
+                </select>
                     <span className="dropdown-icon"><i className="bx bx-chevron-down"></i></span>
                 </div>
             </div>
