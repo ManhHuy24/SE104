@@ -32,6 +32,16 @@ class ClassController {
             res.status(500).json({ message: 'An error occurred while adding students' });
         }
     }
+
+    static async getAssignments(req, res) {
+        try {
+          const assignments = await ClassList.getAssignments();
+          res.status(200).json(assignments);
+        } catch (error) {
+          console.error('Error fetching student assignments:', error);
+          res.status(500).json({ error: 'Internal Server Error' });
+        }
+    }
 }
 
 module.exports = ClassController;

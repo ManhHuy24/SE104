@@ -48,6 +48,22 @@ class ClassList {
             throw err;
         }
     }
+
+    // Fetch mappings of students to their current classes
+    static async getAssignments() {
+        const query = `
+            SELECT 
+                CT.MaHocSinh, 
+                DS.MaLop
+            FROM CT_DSL CT
+            JOIN DANHSACHLOP DS ON CT.MaDanhSachLop = DS.MaDanhSachLop;
+        `;
+        const [rows] = await db.query(query);
+        return rows.reduce((acc, { MaHocSinh, MaLop }) => {
+            acc[MaHocSinh] = MaLop; // Grouping MaHocSinh to its MaLop
+            return acc;
+        }, {});
+    }
 }
 
 module.exports = ClassList;

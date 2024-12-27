@@ -10,6 +10,7 @@ const DanhSachLop = () => {
     const [classes, setClasses] = useState([]);
     const [selectedYear, setSelectedYear] = useState('');
     const [selectedClass, setSelectedClass] = useState('');
+    const [assignedClasses, setAssignedClasses] = useState({}); // New state
 
     useEffect(() => {
         fetchData();
@@ -29,6 +30,10 @@ const DanhSachLop = () => {
             const classesResponse = await fetch('http://localhost:5000/classes');
             const classesData = await classesResponse.json();
             setClasses(classesData);
+
+            const assignmentsResponse = await fetch('http://localhost:5000/api/class/assignments');
+            const assignmentsData = await assignmentsResponse.json(); // Expected format: { studentId: classId }
+            setAssignedClasses(assignmentsData);
 
             // Default year and class
             setSelectedYear(`${yearsData[0].Nam1}-${yearsData[0].Nam2}`);
@@ -55,9 +60,34 @@ const DanhSachLop = () => {
         }
     };
 
+    const deleteStudent = async (id) => {
+        if (!window.confirm('Are you sure you want to delete this student?')) return;
+        try {
+            const response = await fetch(`http://localhost:5000/api/students/${id}`, { method: 'DELETE' });
+            if (response.ok) {
+                const updatedStudents = students.filter(student => student.MaHocSinh !== id);
+                setStudents(updatedStudents);
+                setFilteredStudents(updatedStudents);
+                fetchData();
+            }
+        } catch (error) {
+            console.error('Error deleting student:', error);
+        }
+    };
+
     const handleSubmit = async () => {
         if (selectedStudents.length === 0) {
             alert('Vui lòng chọn ít nhất một học sinh.');
+            return;
+        }
+
+        // Check if any selected student is already assigned
+        const alreadyAssigned = selectedStudents.filter((id) => assignedClasses[id]);
+        if (alreadyAssigned.length > 0) {
+            const assignedNames = alreadyAssigned
+                .map((id) => students.find((student) => student.MaHocSinh === id)?.TenHocSinh)
+                .join(', ');
+            alert(`Các học sinh sau đã được gán lớp: ${assignedNames}`);
             return;
         }
 
@@ -144,6 +174,7 @@ const DanhSachLop = () => {
                             <th className="text-center">Năm sinh</th>
                             <th className="text-center">Địa chỉ</th>
                             <th className="text-center">Email</th>
+                            <th className="text-center">Xoá</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -161,6 +192,11 @@ const DanhSachLop = () => {
                                 <td className="text-center">{student.NgaySinh}</td>
                                 <td className="text-center">{student.DiaChi}</td>
                                 <td className="text-center">{student.Email}</td>
+                                <td className="text-center">
+                                    <button className="btn btn-delete" onClick={() => deleteStudent(student.MaHocSinh)}>
+                                        <i className="bx bx-trash"></i>
+                                    </button>
+                                </td>
                             </tr>
                         ))}
                     </tbody>
