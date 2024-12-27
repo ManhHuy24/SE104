@@ -27,18 +27,19 @@ class ClassList {
 
     static async updateSiSo(MaNamHoc, MaLop) {
         try {
-            // Recalculate SiSo by counting students in the class
+            // Count the number of students in the given class
             const [countResult] = await db.query(
                 `
-                SELECT COUNT(*) as SiSo
-                FROM DANHSACHLOP
-                WHERE MaNamHoc = ? AND MaLop = ?
+                SELECT COUNT(CT.MaHocSinh) AS SiSo
+                FROM CT_DSL CT
+                JOIN DANHSACHLOP DS ON CT.MaDanhSachLop = DS.MaDanhSachLop
+                WHERE DS.MaNamHoc = ? AND DS.MaLop = ?
                 `,
                 [MaNamHoc, MaLop]
             );
-
+    
             const newSiSo = countResult[0].SiSo;
-
+    
             // Update the SiSo in the DANHSACHLOP table
             await db.query(
                 'UPDATE DANHSACHLOP SET SiSo = ? WHERE MaNamHoc = ? AND MaLop = ?',
@@ -47,7 +48,7 @@ class ClassList {
         } catch (err) {
             throw err;
         }
-    }
+    }    
 
     // Fetch mappings of students to their current classes
     static async getAssignments() {
