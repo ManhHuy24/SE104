@@ -1,45 +1,40 @@
-
 .select-group-horizontal {
     display: flex; 
     align-items: center; 
-    gap: 8px;
-    margin: 5px 0; 
+    gap: var(--spacing-sm);
+    margin: var(--spacing-sm) 0; 
     justify-content: flex-start; 
     max-width: 500px;
-    margin-left: 23px; 
-    margin-top: 30px;
+    margin-left: var(--spacing-md); 
+    margin-top: var(--spacing-lg);
 }
 
 .styled-select {
-    padding: 6px; 
-    font-size: 0.8rem; 
-    border: 1px solid #ccc;
-    border-radius: 6px;
+    padding: var(--spacing-xs); 
+    font-size: 0.875rem; 
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
     background-color: #fff;
-    transition: border-color 0.2s;
-}
-
-
-.small-select {
-    width: 100px; 
+    transition: var(--transition);
 }
 
 
 .styled-input {
-    padding: 6px; 
-    font-size: 0.8rem; 
-    border: 1px solid #ccc;
-    border-radius: 6px;
+    padding: var(--spacing-xs); 
+    font-size: 0.875rem; 
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
     text-align: center; 
     background-color: #f1f1f1;
-    color: #333;
+    color: var(--text);
 }
 
 /* Read-only input style */
 .read-only-input {
-    width: 50px; /* Smaller width */
-    cursor: not-allowed; /* Indicate non-editable */
+    width: auto;
+    flex: 1; /* Let it expand proportionally */
 }
+
 
 /* Modal container */
 .modal-add-student {
@@ -47,88 +42,126 @@
     justify-content: center;
     align-items: center;
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    inset: 0;
+    background: var(--modal-overlay);
     z-index: 1000;
+    backdrop-filter: blur(4px);
 }
 
 .modal-content-add-student {
-    background-color: #fff;
-    width: 700px; /* Giảm kích thước modal */
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    background: white;
+    padding: var(--spacing-lg);
+    border-radius: var(--radius);
+    width: 700px;
+    max-width: 90%;
+    box-shadow: var(--shadow-md);
     position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: modal-slide 0.3s ease-out;
 }
 
 .close-add-student {
     position: absolute;
-    top: 10px;
-    right: 15px;
-    font-size: 24px;
+    right: var(--spacing-md);
+    top: var(--spacing-md);
+    font-size: 1.25rem;
+    color: var(--text-light);
     cursor: pointer;
+    padding: var(--spacing-xs);
+    line-height: 1;
+    transition: var(--transition);
+}
+
+.close-add-student:hover {
+    color: var(--text);
 }
 
 .title-add-student {
-    font-size: 18px;
-    margin-bottom: 15px;
+    font-size: 1rem;
+    margin-bottom: var(--spacing-sm);
     text-align: center;
+    color: var(--primary);
 }
 
 /* Search bar */
 .search-bar-add-student {
-    margin-bottom: 10px;
+    margin-bottom: var(--spacing-sm);
     display: flex;
     justify-content: flex-end;
+    width: 100%;
 }
 
 .search-input-add-student {
-    width: 80%; /* Giảm kích thước input */
-    padding: 6px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 14px;
-    transition: all 0.3s ease-in-out;
+    flex: 1;
+    padding: var(--spacing-xs);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+    transition: var(--transition);
 }
 
 .table-add-student {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 10px;
+    margin-top: var(--spacing-sm);
 }
 
 .table-add-student th,
 .table-add-student td {
-    border: 1px solid #ddd;
+    border: 1px solid var(--border);
     text-align: center;
-    padding: 8px;
-    font-size: 15px; 
+    padding: var(--spacing-xs);
+    font-size: 0.875rem;
 }
 
-
 .table-add-student th {
-    background-color: #4CAF50;
+    background: var(--primary);
     font-weight: bold;
+    color: white;
 }
 
 .actions-add-student {
     text-align: center;
-    margin-top: 15px;
+    margin-top: var(--spacing-sm);
 }
 
 .save-btn-add-student {
-    background-color: #4CAF50;
-    color: #fff;
+    background: var(--primary);
+    color: white;
     border: none;
-    padding: 8px 16px;
-    border-radius: 5px;
-    font-size: 14px;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: var(--transition);
 }
 
 .save-btn-add-student:hover {
-    background-color: #45a049;
+    background: var(--primary-hover);
 }
 
+@keyframes modal-slide {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .modal-content-add-student {
+        width: 95%;
+    }
+
+    .search-input-add-student {
+        width: 100%;
+    }
+
+    .table-add-student th, .table-add-student td {
+        font-size: 0.75rem;
+    }
+}

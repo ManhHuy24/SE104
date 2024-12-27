@@ -77,9 +77,22 @@ const Student = {
   },
 
   // Add a new student
-// Add a new student
   create: async (student) => {
     try {
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(student.Email)) {
+            throw new Error('Invalid email format');
+        }
+
+        // Check for duplicate email
+        const duplicateCheckQuery = `SELECT * FROM HOCSINH WHERE Email = ?`;
+        const [duplicateRows] = await db.query(duplicateCheckQuery, [student.Email]);
+        if (duplicateRows.length > 0) {
+            throw new Error('A student with this email already exists');
+        }
+
+        // Proceed with insertion
         const query = `
             INSERT INTO HOCSINH (TenHocSinh, NgaySinh, GioiTinh, DiaChi, Email) 
             VALUES (?, ?, ?, ?, ?)
@@ -98,19 +111,35 @@ const Student = {
     }
   },
 
-
   // Update student details
   updateById: async (id, student) => {
     try {
+        // Validate email format if email is being updated
+        if (student.Email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(student.Email)) {
+                throw new Error('Invalid email format');
+            }
+
+            // Check if the new email is already in use by another student
+            const duplicateCheckQuery = `
+                SELECT * FROM HOCSINH 
+                WHERE Email = ? AND MaHocSinh != ?
+            `;
+            const [duplicateRows] = await db.query(duplicateCheckQuery, [student.Email, id]);
+            if (duplicateRows.length > 0) {
+                throw new Error('Another student with this email already exists');
+            }
+        }
+
+        // Fetch current details
         const currentStudentQuery = `SELECT * FROM HOCSINH WHERE MaHocSinh = ?`;
         const [currentStudentRows] = await db.query(currentStudentQuery, [id]);
-
         if (currentStudentRows.length === 0) {
             throw new Error('Student not found');
         }
 
         const currentStudent = currentStudentRows[0];
-
         const updatedStudent = {
             TenHocSinh: student.TenHocSinh || currentStudent.TenHocSinh,
             NgaySinh: student.NgaySinh || currentStudent.NgaySinh,
@@ -139,10 +168,16 @@ const Student = {
     }
   },
 
-
   // Delete a student method remains unchanged
   deleteById: async (id) => {
     try {
+      // Check if the student exists
+      const studentCheckQuery = `SELECT * FROM HOCSINH WHERE MaHocSinh = ?`;
+      const [studentRows] = await db.query(studentCheckQuery, [id]);
+      if (studentRows.length === 0) {
+          throw new Error('Student not found');
+      }
+
       // Start a transaction
       await db.query('START TRANSACTION');
   
@@ -195,6 +230,34 @@ const Student = {
       throw new Error(`Error deleting student: ${err.message}`);
     }
   },  
+
+  addToClass: async (MaHocSinh, MaNamHoc, MaLop) => {
+    try {
+        // Get MaDanhSachLop for the provided MaNamHoc and MaLop
+        const queryGetClass = `
+            SELECT MaDanhSachLop 
+            FROM DANHSACHLOP 
+            WHERE MaNamHoc = ? AND MaLop = ?
+        `;
+        const [classRows] = await db.query(queryGetClass, [MaNamHoc, MaLop]);
+
+        if (classRows.length === 0) {
+            throw new Error('Class-year mapping not found');
+        }
+        const MaDanhSachLop = classRows[0].MaDanhSachLop;
+
+        // Insert into CT_DSL (mapping table for students and class lists)
+        const queryAddToClass = `
+            INSERT INTO CT_DSL (MaHocSinh, MaDanhSachLop)
+            VALUES (?, ?)
+        `;
+        await db.query(queryAddToClass, [MaHocSinh, MaDanhSachLop]);
+
+        return { message: 'Student added to class successfully' };
+    } catch (err) {
+        throw new Error(`Error adding student to class: ${err.message}`);
+    }
+  }
 };
 
 module.exports = Student;

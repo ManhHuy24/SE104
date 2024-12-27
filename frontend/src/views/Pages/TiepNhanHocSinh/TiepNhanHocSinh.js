@@ -110,7 +110,6 @@ const TiepNhanHocSinh = () => {
         event.preventDefault();
         const formData = new FormData(event.target);
         const birthDate = formData.get('dob');
-        
         // Add validation
         const ageValidation = validateAge(birthDate);
         if (!ageValidation.isValid) {
@@ -136,7 +135,7 @@ const TiepNhanHocSinh = () => {
             });
     
             if (!response.ok) {
-                throw new Error('Failed to add student');
+                throw new Error('Không thể thêm học sinh');
             }
     
             const updatedResponse = await fetch('http://localhost:5005/api/students');
@@ -155,7 +154,7 @@ const TiepNhanHocSinh = () => {
             closeAddStudentModel();
         } catch (error) {
             console.error('Error adding student:', error);
-            alert('Failed to add student');
+            alert('Không thể thêm học sinh');
         }
     };   
     
@@ -224,14 +223,14 @@ const TiepNhanHocSinh = () => {
     };
 
     const handleDeleteStudent = async (id) => {
-        if (window.confirm('Are you sure you want to delete this student?')) {
+        if (window.confirm('Bạn có chắc chắn muốn xóa học sinh này không?')) {
             try {
                 const response = await fetch(`http://localhost:5005/api/students/${id}`, {
                     method: 'DELETE',
                 });
     
                 if (!response.ok) {
-                    throw new Error('Failed to delete student');
+                    throw new Error('Không thể xóa học sinh');
                 }
     
                 // Refetch the updated list of students from the backend
@@ -249,7 +248,7 @@ const TiepNhanHocSinh = () => {
                 );
             } catch (error) {
                 console.error(error);
-                alert('Failed to delete student');
+                alert('Không thể xóa học sinh');
             }
         }
     };    
@@ -264,7 +263,7 @@ const TiepNhanHocSinh = () => {
         const file = event.target.file.files[0];
     
         if (!file) {
-            alert('Please select a file');
+            alert('Vui lòng chọn một tệp.');
             return;
         }
     
@@ -281,7 +280,7 @@ const TiepNhanHocSinh = () => {
     
             if (!response.ok) {
                 if (data.errors && data.errors.length > 0) {
-                    alert('Some rows could not be imported.');
+                    alert('Một số học sinh không thể nhập vào được.');
                 } else {
                     throw new Error(data.message || 'Failed to import file');
                 }
@@ -296,14 +295,12 @@ const TiepNhanHocSinh = () => {
             setFilteredStudents(updatedStudents);
     
             closeModel();
-            alert('File processed successfully.');
+            alert('Tệp đã được xử lý thành công!');
         } catch (error) {
             console.error('Error importing file:', error);
-            alert('Failed to import file.');
+            alert('Không thể xử lý tệp.');
         }
     };
-      
-    
 
     const closeModel = () => {
         setShowModel(false);
@@ -368,7 +365,7 @@ const TiepNhanHocSinh = () => {
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="8">Không có dữ liệu</td>
+                                <td colSpan="8">Không tìm thấy học sinh phù hợp</td>
                             </tr>
                         )}
                     </tbody>

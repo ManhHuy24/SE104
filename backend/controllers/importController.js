@@ -131,11 +131,27 @@ const uploadFile = async (req, res) => {
     }
 
     try {
+        // Validate MIME type
+        const allowedMimeTypes = [
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'application/vnd.ms-excel',
+            'text/csv',
+        ];
+        if (!allowedMimeTypes.includes(req.file.mimetype)) {
+            throw new Error('Unsupported file type. Only Excel and CSV files are allowed.');
+        }
+
+        // Check if the file is empty
+        const fileSize = fs.statSync(req.file.path).size;
+        if (fileSize === 0) {
+            throw new Error('Uploaded file is empty');
+        }
+
         // Fetch thamso data
         const thamso = await fetchThamso();
 
         // Determine file type and process accordingly
-        const fileExtension = req.file.originalname.split('.').pop();
+        const fileExtension = req.file.originalname.split('.').pop().toLowerCase();
         let result;
 
         if (fileExtension === 'xlsx' || fileExtension === 'xls') {
@@ -148,8 +164,27 @@ const uploadFile = async (req, res) => {
 
         const { students, errors } = result;
 
+        // Check for duplicate emails
+        const duplicateEmails = [];
+        for (const student of students) {
+            const existingStudent = await Student.getByEmail(student.Email); // Assume you have a method to check by email
+            if (existingStudent) {
+                duplicateEmails.push(student.Email);
+            }
+        }
+
+        if (duplicateEmails.length > 0) {
+            errors.push({
+                error: `Duplicate emails found: ${duplicateEmails.join(', ')}`,
+            });
+        }
+
         if (errors.length > 0) {
-            return res.status(200).json({ message: 'Some rows could not be imported.', errors, students });
+            return res.status(200).json({ 
+                message: 'Some rows could not be imported.', 
+                errors, 
+                students: students.filter(s => !duplicateEmails.includes(s.Email)) 
+            });
         }
 
         res.status(200).json({ message: 'File imported successfully.', students });

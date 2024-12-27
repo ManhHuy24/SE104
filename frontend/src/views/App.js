@@ -9,7 +9,7 @@ import ManageSubjects from './Pages/QuanLyMonHoc/QuanLyMonHoc';
 import SubjectGrades from './Pages/BangDiemMonHoc/BangDiemMonHoc';
 import Reports from './Pages/BaoCao/BaoCao';
 import CaiDat from './Pages/CaiDat/CaiDat';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 
 function App() {
   return (
@@ -22,6 +22,7 @@ function App() {
             </div>
             <div className="content">
               <Routes>
+                <Route path="/" element={<Navigate to="/students-list" replace />} />
                 <Route path="/home" element={<Menu />} />
                 <Route path="/students-list" element={<StudentsList />} />
                 <Route path="/receive-students" element={<ReceiveStudents />} />
