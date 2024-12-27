@@ -48,6 +48,11 @@ const TiepNhanHocSinh = () => {
         const today = new Date();
         const birth = new Date(birthDate);
         
+        // Check if birthDate is in the future
+        if (birth > today) {
+            return -1; // Return negative age for future dates
+        }
+        
         // Calculate age
         let age = today.getFullYear() - birth.getFullYear();
         const monthDiff = today.getMonth() - birth.getMonth();
@@ -59,33 +64,28 @@ const TiepNhanHocSinh = () => {
         
         return age;
     };
-
-    // Update the validateAge function to add more logging
+    
     const validateAge = (birthDate) => {
-        if (!thamso) {
-            console.log('ThamSo not loaded yet');
-            return { isValid: false, message: 'Không thể kiểm tra tuổi, vui lòng thử lại' };
+        if (!thamso || !thamso[0]) {
+            return { isValid: false, message: 'Tham số chưa được tải, vui lòng thử lại sau.' };
         }
         
         const age = calculateAge(birthDate);
-        console.log('Calculated age:', age);
-        console.log('Min age allowed:', thamso.TuoiHocSinhToiThieu);
-        console.log('Max age allowed:', thamso.TuoiHocSinhToiDa);
         
-        if (age < thamso.TuoiHocSinhToiThieu) {
+        if (age < thamso[0].TuoiHocSinhToiThieu) {
             return {
                 isValid: false,
-                message: `Tuổi học sinh không được nhỏ hơn ${thamso.TuoiHocSinhToiThieu} tuổi (hiện tại: ${age} tuổi)`
+                message: `Tuổi học sinh không được nhỏ hơn ${thamso[0].TuoiHocSinhToiThieu} tuổi (hiện tại: ${age} tuổi)`,
             };
         }
-        
-        if (age > thamso.TuoiHocSinhToiDa) {
+    
+        if (age > thamso[0].TuoiHocSinhToiDa) {
             return {
                 isValid: false,
-                message: `Tuổi học sinh không được lớn hơn ${thamso.TuoiHocSinhToiDa} tuổi (hiện tại: ${age} tuổi)`
+                message: `Tuổi học sinh không được lớn hơn ${thamso[0].TuoiHocSinhToiDa} tuổi (hiện tại: ${age} tuổi)`,
             };
         }
-        
+    
         return { isValid: true };
     };
 
@@ -172,13 +172,13 @@ const TiepNhanHocSinh = () => {
         const formData = new FormData(event.target);
         const birthDate = formData.get('dob') || editingStudent.NgaySinh;
         
-        // Add validation
+        // Add validation BEFORE making the API call
         const ageValidation = validateAge(birthDate);
         if (!ageValidation.isValid) {
             alert(ageValidation.message);
-            return; // This line is crucial - it stops the function if validation fails
+            return; // Stop execution if validation fails
         }
-
+    
         const updatedStudent = {
             TenHocSinh: formData.get('name') || editingStudent.TenHocSinh,
             NgaySinh: birthDate,
@@ -188,6 +188,7 @@ const TiepNhanHocSinh = () => {
         };
     
         try {
+            // Only proceed with API call if validation passed
             const response = await fetch(`http://localhost:5005/api/students/${editingStudent.MaHocSinh}`, {
                 method: 'PUT',
                 headers: {
@@ -200,13 +201,13 @@ const TiepNhanHocSinh = () => {
                 throw new Error('Failed to update student');
             }
     
+            // Rest of your code...
             const updatedResponse = await fetch('http://localhost:5005/api/students');
             if (!updatedResponse.ok) {
                 throw new Error('Failed to fetch updated students');
             }
     
             const updatedStudents = await updatedResponse.json();
-    
             setStudents(updatedStudents);
             setFilteredStudents(
                 updatedStudents.filter((student) =>

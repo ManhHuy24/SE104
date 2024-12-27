@@ -25,7 +25,7 @@ const DanhSachHocSinh = () => {
     useEffect(() => {
         const fetchYears = async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/years');
+                const response = await fetch('http://localhost:5005/api/years');
                 if (!response.ok) {
                     throw new Error(`Lỗi HTTP! Trạng thái: ${response.status}`);
                 }
