@@ -195,6 +195,34 @@ const Student = {
       throw new Error(`Error deleting student: ${err.message}`);
     }
   },  
+
+  addToClass: async (MaHocSinh, MaNamHoc, MaLop) => {
+    try {
+        // Get MaDanhSachLop for the provided MaNamHoc and MaLop
+        const queryGetClass = `
+            SELECT MaDanhSachLop 
+            FROM DANHSACHLOP 
+            WHERE MaNamHoc = ? AND MaLop = ?
+        `;
+        const [classRows] = await db.query(queryGetClass, [MaNamHoc, MaLop]);
+
+        if (classRows.length === 0) {
+            throw new Error('Class-year mapping not found');
+        }
+        const MaDanhSachLop = classRows[0].MaDanhSachLop;
+
+        // Insert into CT_DSL (mapping table for students and class lists)
+        const queryAddToClass = `
+            INSERT INTO CT_DSL (MaHocSinh, MaDanhSachLop)
+            VALUES (?, ?)
+        `;
+        await db.query(queryAddToClass, [MaHocSinh, MaDanhSachLop]);
+
+        return { message: 'Student added to class successfully' };
+    } catch (err) {
+        throw new Error(`Error adding student to class: ${err.message}`);
+    }
+  }
 };
 
 module.exports = Student;

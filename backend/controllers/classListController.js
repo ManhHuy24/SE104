@@ -1,4 +1,3 @@
-// controllers/classController.js
 const ClassList = require('../models/classListModel');
 const Student = require('../models/studentModel');
 
@@ -11,10 +10,12 @@ class ClassController {
         }
 
         try {
-            // Validate the school year and class
-            const classExists = await ClassList.isClassAvailable(MaNamHoc, MaLop);
+            // Check if the class-year mapping exists
+            let classExists = await ClassList.isClassAvailable(MaNamHoc, MaLop);
+
             if (!classExists) {
-                return res.status(404).json({ message: 'Class not found' });
+                // Create the class-year mapping if it doesn't exist
+                await ClassList.createClass(MaNamHoc, MaLop);
             }
 
             // Add each student to the class
@@ -22,9 +23,12 @@ class ClassController {
                 await Student.addToClass(student.MaHocSinh, MaNamHoc, MaLop);
             }
 
+            // Update the class size (SiSo) by recounting students in the database
+            await ClassList.updateSiSo(MaNamHoc, MaLop);
+
             res.status(200).json({ message: 'Students added successfully' });
         } catch (error) {
-            console.error(error);
+            console.error('Error in addStudentsToClass:', error);
             res.status(500).json({ message: 'An error occurred while adding students' });
         }
     }
