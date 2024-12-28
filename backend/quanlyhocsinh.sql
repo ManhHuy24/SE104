@@ -65,7 +65,8 @@ CREATE TABLE THAMSO (
 -- Tạo bảng MONHOC
 CREATE TABLE MONHOC (
     MaMonHoc INT AUTO_INCREMENT PRIMARY KEY,
-    TenMonHoc NVARCHAR(50)
+    TenMonHoc NVARCHAR(50),
+    DiemDatMonHoc FLOAT
 );
 
 -- Tạo bảng HOCKY

@@ -8,6 +8,7 @@ const classListRoutes = require('./routes/classListRoute');
 const yearRoutes = require('./routes/yearRoute');
 const thamsoRoutes = require('./routes/thamsoRoutes');
 const importRoutes = require('./routes/importRoutes');
+const subjectRoutes = require('./routes/subjectRoutes');
 
 
 // Load environment variables
@@ -26,6 +27,7 @@ app.use('/api/thamso', thamsoRoutes);
 app.use('/api', importRoutes);
 app.use('/api/class', classListRoutes);
 app.use('/api/years', yearRoutes);
+app.use('/api/subjects', subjectRoutes);
 
 // Start server
 const PORT = process.env.PORT || 5000;

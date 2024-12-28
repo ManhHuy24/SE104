@@ -18,33 +18,26 @@ const DanhSachLop = () => {
 
     const fetchData = async () => {
         try {
-<<<<<<< HEAD
-            const response = await fetch('http://localhost:5005/api/students');
-            const data = await response.json();
-            setStudents(data);
-            setFilteredStudents(data);
-=======
-            const studentsResponse = await fetch('http://localhost:5000/api/students');
+            const studentsResponse = await fetch('http://localhost:5005/api/students');
             const studentsData = await studentsResponse.json();
             setStudents(studentsData);
             setFilteredStudents(studentsData);
 
-            const yearsResponse = await fetch('http://localhost:5000/api/years');
+            const yearsResponse = await fetch('http://localhost:5005/api/years');
             const yearsData = await yearsResponse.json();
             setYears(yearsData);
 
-            const classesResponse = await fetch('http://localhost:5000/classes');
+            const classesResponse = await fetch('http://localhost:5005/classes');
             const classesData = await classesResponse.json();
             setClasses(classesData);
 
-            const assignmentsResponse = await fetch('http://localhost:5000/api/class/assignments');
+            const assignmentsResponse = await fetch('http://localhost:5005/api/class/assignments');
             const assignmentsData = await assignmentsResponse.json(); // Expected format: { studentId: classId }
             setAssignedClasses(assignmentsData);
 
             // Default year and class
             setSelectedYear(`${yearsData[0].Nam1}-${yearsData[0].Nam2}`);
             setSelectedClass(classesData[0].TenLop);
->>>>>>> 19cd2dacac653faf9b7a7d017d4e52725c1dd509
         } catch (error) {
             console.error('Error fetching data:', error);
         }
@@ -114,7 +107,7 @@ const DanhSachLop = () => {
         };
 
         try {
-            const response = await fetch('http://localhost:5000/api/class/add-students', {
+            const response = await fetch('http://localhost:5005/api/class/add-students', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
