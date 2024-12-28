@@ -236,23 +236,44 @@ const BangDiemMonHoc = () => {
             </div>
 
             {isModalOpen && (
-                <div className="modal">
-                    <form onSubmit={handleSubmit}>
-                        <label>
-                            Điểm 15 phút:
-                            <input
-                                type="text"
-                                name="Diem15Phut"
-                                value={updatedScore.Diem15Phut}
-                                onChange={handleScoreChange}
-                            />
-                        </label>
-                        {/* Similar inputs for Diem1Tiet and DiemHocKy */}
-                        <button type="submit">Save</button>
-                        <button type="button" onClick={() => setIsModalOpen(false)}>Cancel</button>
-                    </form>
-                </div>
+                <>
+                    <div className="modal-overlay" onClick={() => setIsModalOpen(false)}></div>
+                    <div className="modal">
+                        <form onSubmit={handleSubmit}>
+                            <label>
+                                Điểm 15 phút:
+                                <input
+                                    type="text"
+                                    name="Diem15Phut"
+                                    value={updatedScore.Diem15Phut}
+                                    onChange={handleScoreChange}
+                                />
+                            </label>
+                            <label>
+                                Điểm 1 tiết:
+                                <input
+                                    type="text"
+                                    name="Diem1Tiet"
+                                    value={updatedScore.Diem1Tiet}
+                                    onChange={handleScoreChange}
+                                />
+                            </label>
+                            <label>
+                                Điểm học kỳ:
+                                <input
+                                    type="text"
+                                    name="DiemHocKy"
+                                    value={updatedScore.DiemHocKy}
+                                    onChange={handleScoreChange}
+                                />
+                            </label>
+                            <button type="submit">Save</button>
+                            <button type="button" onClick={() => setIsModalOpen(false)}>Cancel</button>
+                        </form>
+                    </div>
+                </>
             )}
+
         </div>
     );
 };
