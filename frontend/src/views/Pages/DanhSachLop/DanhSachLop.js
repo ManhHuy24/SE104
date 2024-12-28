@@ -238,11 +238,14 @@ const DanhSachLop = () => {
                         {filteredStudents.map((student, index) => (
                             <tr key={student.MaHocSinh}>
                                 <td className="text-center">
-                                    <input
-                                        type="checkbox"
-                                        onChange={(e) => handleCheckboxChange(e, student.MaHocSinh)}
-                                        disabled={isAssignedToAnyClass(student.MaHocSinh)} // Disable checkbox if assigned to any class
-                                    />
+                                    <label className="checkbox-container">
+                                        <input
+                                            type="checkbox"
+                                            onChange={(e) => handleCheckboxChange(e, student.MaHocSinh)}
+                                            disabled={isAssignedToAnyClass(student.MaHocSinh)} // Disable checkbox if assigned to any class
+                                        />
+                                        <span className="custom-checkbox"></span>
+                                    </label>
                                 </td>
                                 <td className="text-center">{index + 1}</td>
                                 <td className="text-center">{student.TenHocSinh}</td>

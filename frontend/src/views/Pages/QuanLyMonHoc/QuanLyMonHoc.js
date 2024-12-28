@@ -3,6 +3,7 @@ import './QuanLyMonHoc.css';
 
 const QuanLyMonHoc = () => {
     const [subjects, setSubjects] = useState([]);
+    const [searchKeyword, setSearchKeyword] = useState('');
     const [showAddSubjectModel, setShowAddSubjectModel] = useState(false);
     const [showEditSubjectModel, setShowEditSubjectModel] = useState(false);
     const [currentSubject, setCurrentSubject] = useState(null);
@@ -32,7 +33,6 @@ const QuanLyMonHoc = () => {
     // Handle add subject
     const handleAddSubject = () => {
         setShowAddSubjectModel(true);
-
     };
 
     // Close Add Subject Modal
@@ -126,6 +126,16 @@ const QuanLyMonHoc = () => {
         }
     };
 
+    // Handle search input change
+    const handleSearchChange = (e) => {
+        setSearchKeyword(e.target.value);
+    };
+
+    // Filter subjects based on search keyword
+    const filteredSubjects = subjects.filter((subject) =>
+        subject.TenMonHoc.toLowerCase().includes(searchKeyword.toLowerCase())
+    );
+
     return (
         <div className="container">
             <h1 className="h1">Quản lý môn học</h1>
@@ -141,7 +151,8 @@ const QuanLyMonHoc = () => {
                         type="text"
                         className="search-input"
                         placeholder="Tìm kiếm môn học..."
-                        onChange={(e) => console.log(e.target.value)}
+                        value={searchKeyword}
+                        onChange={handleSearchChange}
                     />
                 </div>
                 <table className="table">
@@ -154,31 +165,31 @@ const QuanLyMonHoc = () => {
                             <th className="text-center">Xóa</th>
                         </tr>
                     </thead>
-                        <tbody>
-                            {subjects.length > 0 ? (
-                                subjects.map((subject) => (
-                                    <tr key={subject.MaMonHoc}>
-                                        <td className="text-center">{subject.MaMonHoc}</td>
-                                        <td className="text-center">{subject.TenMonHoc}</td>
-                                        <td className="text-center">{subject.DiemDatMonHoc}</td>
-                                        <td className="text-center">
-                                            <button className="btn btn-edit" onClick={() => handleEditSubject(subject)}>
-                                                <i className="bx bxs-edit"></i>
-                                            </button>
-                                        </td>
-                                        <td className="text-center">
-                                            <button className="btn btn-delete" onClick={() => handleDeleteSubject(subject.MaMonHoc)}>
-                                                <i className="bx bx-trash"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan="5" className="text-center">Không có môn học nào.</td>
+                    <tbody>
+                        {filteredSubjects.length > 0 ? (
+                            filteredSubjects.map((subject) => (
+                                <tr key={subject.MaMonHoc}>
+                                    <td className="text-center">{subject.MaMonHoc}</td>
+                                    <td className="text-center">{subject.TenMonHoc}</td>
+                                    <td className="text-center">{subject.DiemDatMonHoc}</td>
+                                    <td className="text-center">
+                                        <button className="btn btn-edit" onClick={() => handleEditSubject(subject)}>
+                                            <i className="bx bxs-edit"></i>
+                                        </button>
+                                    </td>
+                                    <td className="text-center">
+                                        <button className="btn btn-delete" onClick={() => handleDeleteSubject(subject.MaMonHoc)}>
+                                            <i className="bx bx-trash"></i>
+                                        </button>
+                                    </td>
                                 </tr>
-                            )}
-                        </tbody>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="5" className="text-center">Không có môn học nào phù hợp.</td>
+                            </tr>
+                        )}
+                    </tbody>
                 </table>
             </div>
 
@@ -216,7 +227,7 @@ const QuanLyMonHoc = () => {
                     </div>
                 </div>
             )}
-
+            
             {/* Edit Subject Modal */}
             {showEditSubjectModel && (
                 <div className="modal">
