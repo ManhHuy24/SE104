@@ -67,10 +67,14 @@ class ClassList {
     }
 
     static async removeStudentFromClass(MaHocSinh, MaNamHoc, MaLop) {
+        const connection = await db.getConnection(); // Start a transaction
         try {
-            const [results] = await db.query(
+            await connection.beginTransaction();
+    
+            // Check if the student is in the class
+            const [results] = await connection.query(
                 `
-                SELECT COUNT(*) as count
+                SELECT CT.MaCT_DSL
                 FROM CT_DSL CT
                 JOIN DANHSACHLOP DS ON CT.MaDanhSachLop = DS.MaDanhSachLop
                 WHERE CT.MaHocSinh = ? AND DS.MaLop = ? AND DS.MaNamHoc = ?
@@ -78,11 +82,46 @@ class ClassList {
                 [MaHocSinh, MaLop, MaNamHoc]
             );
     
-            if (results[0].count === 0) {
+            if (results.length === 0) {
                 throw new Error('Student is not assigned to this class');
             }
     
-            await db.query(
+            const MaCT_DSL = results[0].MaCT_DSL;
+    
+            // Delete rows in BD_THANHPHAN
+            await connection.query(
+                `
+                DELETE BD_TP
+                FROM BD_THANHPHAN BD_TP
+                JOIN BD_MONHOC BD_MH ON BD_TP.MaBD_MH = BD_MH.MaBD_MH
+                JOIN BANGDIEM BD ON BD_MH.MaBangDiem = BD.MaBangDiem
+                WHERE BD.MaCT_DSL = ?
+                `,
+                [MaCT_DSL]
+            );
+    
+            // Delete rows in BD_MONHOC
+            await connection.query(
+                `
+                DELETE BD_MH
+                FROM BD_MONHOC BD_MH
+                JOIN BANGDIEM BD ON BD_MH.MaBangDiem = BD.MaBangDiem
+                WHERE BD.MaCT_DSL = ?
+                `,
+                [MaCT_DSL]
+            );
+    
+            // Delete rows in BANGDIEM
+            await connection.query(
+                `
+                DELETE FROM BANGDIEM
+                WHERE MaCT_DSL = ?
+                `,
+                [MaCT_DSL]
+            );
+    
+            // Delete the student from CT_DSL
+            await connection.query(
                 `
                 DELETE CT
                 FROM CT_DSL CT
@@ -92,11 +131,16 @@ class ClassList {
                 [MaHocSinh, MaLop, MaNamHoc]
             );
     
+            // Update SiSo in DANHSACHLOP
             await this.updateSiSo(MaNamHoc, MaLop);
     
+            await connection.commit(); // Commit the transaction
             return { message: 'Student removed from class successfully' };
         } catch (err) {
-            throw err;
+            await connection.rollback(); // Rollback on error
+            throw new Error(`Error removing student from class: ${err.message}`);
+        } finally {
+            connection.release();
         }
     }    
 }
