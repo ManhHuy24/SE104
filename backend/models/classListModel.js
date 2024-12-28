@@ -67,11 +67,12 @@ class ClassList {
     }
 
     static async removeStudentFromClass(MaHocSinh, MaNamHoc, MaLop) {
-        const connection = await db.getConnection(); // Start a transaction
+
+        const connection = await db.getConnection(); 
         try {
             await connection.beginTransaction();
-    
-            // Check if the student is in the class
+
+            console.log('Checking student assignment...');
             const [results] = await connection.query(
                 `
                 SELECT CT.MaCT_DSL
@@ -81,14 +82,14 @@ class ClassList {
                 `,
                 [MaHocSinh, MaLop, MaNamHoc]
             );
-    
+
             if (results.length === 0) {
-                throw new Error('Student is not assigned to this class');
+                throw new Error('Học sinh không thuộc lớp này.');
             }
-    
+
             const MaCT_DSL = results[0].MaCT_DSL;
-    
-            // Delete rows in BD_THANHPHAN
+
+            console.log('Deleting related records from BD_THANHPHAN...');
             await connection.query(
                 `
                 DELETE BD_TP
@@ -99,8 +100,8 @@ class ClassList {
                 `,
                 [MaCT_DSL]
             );
-    
-            // Delete rows in BD_MONHOC
+
+            console.log('Deleting related records from BD_MONHOC...');
             await connection.query(
                 `
                 DELETE BD_MH
@@ -110,35 +111,43 @@ class ClassList {
                 `,
                 [MaCT_DSL]
             );
-    
-            // Delete rows in BANGDIEM
+
+            console.log('Deleting records from BANGDIEM...');
             await connection.query(
                 `
-                DELETE FROM BANGDIEM
-                WHERE MaCT_DSL = ?
+                DELETE BD
+                FROM BANGDIEM BD
+                WHERE BD.MaCT_DSL = ?
                 `,
                 [MaCT_DSL]
             );
-    
-            // Delete the student from CT_DSL
+
+            console.log('Deleting records from CT_DSL...');
             await connection.query(
                 `
                 DELETE CT
                 FROM CT_DSL CT
-                JOIN DANHSACHLOP DS ON CT.MaDanhSachLop = DS.MaDanhSachLop
-                WHERE CT.MaHocSinh = ? AND DS.MaLop = ? AND DS.MaNamHoc = ?
+                WHERE CT.MaCT_DSL = ?
                 `,
-                [MaHocSinh, MaLop, MaNamHoc]
+                [MaCT_DSL]
             );
-    
-            // Update SiSo in DANHSACHLOP
-            await this.updateSiSo(MaNamHoc, MaLop);
-    
-            await connection.commit(); // Commit the transaction
-            return { message: 'Student removed from class successfully' };
+
+            console.log('Updating SiSo...');
+            await connection.query(
+                `
+                UPDATE DANHSACHLOP DS
+                SET SiSo = SiSo - 1
+                WHERE DS.MaLop = ? AND DS.MaNamHoc = ?
+                `,
+                [MaLop, MaNamHoc]
+            );
+
+            await connection.commit();
+            return { message: 'Học sinh đã được xóa khỏi lớp thành công.' };
         } catch (err) {
-            await connection.rollback(); // Rollback on error
-            throw new Error(`Error removing student from class: ${err.message}`);
+            console.error('Error during transaction:', err.message);
+            await connection.rollback();
+            throw new Error(`Lỗi khi xóa học sinh khỏi lớp: ${err.message}`);
         } finally {
             connection.release();
         }
