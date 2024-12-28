@@ -141,6 +141,24 @@
     background: var(--primary-hover);
 }
 
+.btn-remove {
+    color: #fff;
+    background-color: #ff4d4f;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btn-remove:hover {
+    background-color: #ff7875;
+}
+
+input[type="checkbox"]:disabled {
+    background-color: #e0e0e0;
+    cursor: not-allowed;
+}
+
 @keyframes modal-slide {
     from {
         opacity: 0;

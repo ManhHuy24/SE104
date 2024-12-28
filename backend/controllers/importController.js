@@ -10,7 +10,7 @@ const upload = multer({ dest: 'uploads/' });
 
 const fetchThamso = async () => {
     try {
-        const response = await axios.get('http://localhost:5000/api/thamso');
+        const response = await axios.get('http://localhost:5005/api/thamso');
         return response.data; // Assuming the API returns the data directly
     } catch (error) {
         console.error('Error fetching Thamso:', error.message);

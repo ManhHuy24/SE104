@@ -9,6 +9,7 @@ const yearRoutes = require('./routes/yearRoute');
 const thamsoRoutes = require('./routes/thamsoRoutes');
 const importRoutes = require('./routes/importRoutes');
 const subjectRoutes = require('./routes/subjectRoutes');
+const baoCaoRoutes = require('./routes/baocaoRoutes'); // Import the new report routes
 
 
 // Load environment variables
@@ -28,6 +29,7 @@ app.use('/api', importRoutes);
 app.use('/api/class', classListRoutes);
 app.use('/api/years', yearRoutes);
 app.use('/api/subjects', subjectRoutes);
+app.use('/api/reports', baoCaoRoutes); // Set up report routes
 
 // Start server
 const PORT = process.env.PORT || 5000;
