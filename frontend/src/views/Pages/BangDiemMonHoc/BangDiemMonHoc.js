@@ -1,71 +1,206 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './BangDiemMonHoc.css';
 
 const BangDiemMonHoc = () => {
-    const [showAddScoreModel, setShowAddScoreModel] = useState(false);
-    const [showEditScoreModel, setShowEditScoreModel] = useState(false);
+    const [scores, setScores] = useState([]);
+    const [years, setYears] = useState([]);
+    const [classes, setClasses] = useState([]);
+    const [subjects, setSubjects] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [filters, setFilters] = useState({
+        MaNamHoc: '',
+        MaLop: '',
+        MaMonHoc: '',
+        MaHocKy: 1, // Change from 'HK1' to 1
+    });
 
-    const handleAddScore = () => {
-        setShowAddScoreModel(true);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [currentScore, setCurrentScore] = useState(null);
+    const [updatedScore, setUpdatedScore] = useState({ Diem15Phut: '', Diem1Tiet: '', DiemHocKy: '' });
+
+    const semesterOptions = [
+        { value: 1, label: 'Học kỳ I' },
+        { value: 2, label: 'Học kỳ II' }
+    ];
+
+    useEffect(() => {
+        const fetchDropdownData = async () => {
+            try {
+                setIsLoading(true);
+                const [yearsResponse, classesResponse, subjectsResponse] = await Promise.all([
+                    fetch('http://localhost:5005/api/years').then(res => res.json()),
+                    fetch('http://localhost:5005/classes').then(res => res.json()),
+                    fetch('http://localhost:5005/api/subjects').then(res => res.json()),
+                ]);
+
+                setYears(yearsResponse || []);
+                setClasses(classesResponse || []);
+                setSubjects(subjectsResponse || []);
+
+                setFilters(filters => ({
+                    ...filters,
+                    MaNamHoc: yearsResponse[0]?.MaNamHoc || '',
+                    MaLop: classesResponse[0]?.MaLop || '',
+                    MaMonHoc: subjectsResponse[0]?.MaMonHoc || '',
+                }));
+            } catch (err) {
+                setError('Failed to fetch dropdown data.');
+                console.error(err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchDropdownData();
+    }, []);
+
+    const fetchScores = async () => {
+        try {
+            setIsLoading(true);
+            setError(null);
+            
+            console.log('Sending request with filters:', filters);
+            
+            const response = await fetch('http://localhost:5005/api/scores/get-scores', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(filters),
+            });
+            
+            // Log the raw response for debugging
+            console.log('Response status:', response.status);
+            
+            const text = await response.text();
+            console.log('Raw response:', text);
+            
+            let data;
+            try {
+                data = JSON.parse(text);
+            } catch (e) {
+                throw new Error('Invalid JSON response from server');
+            }
+            
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to fetch scores');
+            }
+            
+            setScores(data.data || []);
+        } catch (err) {
+            setError(err.message || 'Failed to fetch scores');
+            console.error('Error details:', err);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
-    const closeAddScoreModel = () => {
-        setShowAddScoreModel(false);
+    useEffect(() => {
+        if (filters.MaNamHoc && filters.MaLop && filters.MaMonHoc) {
+            fetchScores();
+        }
+    }, [filters]);
+
+    const handleFilterChange = (e) => {
+        const { name, value } = e.target;
+        setFilters({ ...filters, [name]: value });
     };
 
-    const handleEditScore = () => {
-        setShowEditScoreModel(true);
+    const handleEditClick = (score) => {
+        setCurrentScore(score);
+        setUpdatedScore({
+            Diem15Phut: score.Diem15Phut || '',
+            Diem1Tiet: score.Diem1Tiet || '',
+            DiemHocKy: score.DiemHocKy || '',
+        });
+        setIsModalOpen(true);
     };
 
-    const closeEditScoreModel = () => {
-        setShowEditScoreModel(false);
+    const handleScoreChange = (e) => {
+        const { name, value } = e.target;
+        setUpdatedScore({ ...updatedScore, [name]: value });
     };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await fetch('http://localhost:5005/api/scores/add-or-update-score', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    MaBD_MH: currentScore.MaBD_MH,
+                    MaLKT: 1, // Example MaLKT for 15 minutes test
+                    KetQua: updatedScore.Diem15Phut,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update score');
+            }
+            setIsModalOpen(false);
+            fetchScores();
+        } catch (err) {
+            console.error(err.message);
+        }
+    };
+
     return (
-    <div>
-        <h1>Bảng điểm môn học</h1>
-        <div className="select-group-scorelist">
-        <div className="select-group">
-            <label htmlFor="year-select" className="select-label">Niên khóa</label>
-              <div className="custom-select">
-              <select id="year-select" name="year" className="styled-select">
-                 <option value="2022-2023">2022-2023</option>
-                 <option value="2023-2024">2023-2024</option>
-                 <option value="2024-2025">2024-2025</option>
-              </select>
-              <span className="dropdown-icon"><i className="bx bx-chevron-down"></i></span>
-              </div>
-        </div>
+        <div>
+            <h1>Bảng điểm môn học</h1>
+            {isLoading && <p>Loading...</p>}
+            {error && <p className="error">{error}</p>}
+            <div className="select-group-scorelist">
+                <div className="select-group">
+                    <label htmlFor="year-select" className="select-label">Niên khóa</label>
+                    <select id="year-select" name="MaNamHoc" value={filters.MaNamHoc} onChange={handleFilterChange} className="styled-select">
+                        {years.map(year => (
+                            <option key={year.MaNamHoc} value={year.MaNamHoc}>
+                                {year.Nam1}-{year.Nam2}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                <div className="select-group">
+                    <label htmlFor="class-select" className="select-label">Lớp</label>
+                    <select id="class-select" name="MaLop" value={filters.MaLop} onChange={handleFilterChange} className="styled-select">
+                        {classes.map(cls => (
+                            <option key={cls.MaLop} value={cls.MaLop}>
+                                {cls.TenLop}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                <div className="select-group">
+                    <label htmlFor="sub-select" className="select-label">Môn học</label>
+                    <select id="sub-select" name="MaMonHoc" value={filters.MaMonHoc} onChange={handleFilterChange} className="styled-select">
+                        {subjects.map(subject => (
+                            <option key={subject.MaMonHoc} value={subject.MaMonHoc}>
+                                {subject.TenMonHoc}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                <div className="select-group">
+                    <label htmlFor="sem-select" className="select-label">Học kỳ</label>
+                    <select 
+                        id="sem-select" 
+                        name="MaHocKy" 
+                        value={filters.MaHocKy} 
+                        onChange={handleFilterChange} 
+                        className="styled-select"
+                    >
+                        {semesterOptions.map(option => (
+                            <option key={option.value} value={option.value}>
+                                {option.label}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+            </div>
 
-        <div className="select-group">
-            <label htmlFor="class-select" className="select-label">Lớp</label>
-              <div className="custom-select">
-              <select id="class-select" name="class" className="styled-select">
-                 <option value="10A1">10A1</option>
-                 <option value="10A2">10A2</option>
-                 <option value="10A3">10A3</option>
-              </select>
-              <span className="dropdown-icon"><i className="bx bx-chevron-down"></i></span>
-              </div>
-        </div>
-
-        <div className="select-group">
-           <label htmlFor="sub-select" className="select-label">Môn học</label>
-           <input type="text" name="name" placeholder="Toán" required class="input-large" />
-        </div>
-
-        <div className="select-group">
-            <label htmlFor="sem-select" className="select-label">Học kỳ</label>
-              <div className="custom-select">
-              <select id="sem-select" name="sem" className="styled-select">
-                 <option value="HK1">Học kỳ I</option>
-                 <option value="HK2">Học kỳ II</option>
-              </select>
-              <span className="dropdown-icon"><i className="bx bx-chevron-down"></i></span>
-              </div>
-        </div>
-        </div>
-       
-        <div className="table-responsive">
+            <div className="table-responsive">
                 <table className="table">
                     <thead>
                         <tr>
@@ -75,110 +210,50 @@ const BangDiemMonHoc = () => {
                             <th className="text-center">Kiểm tra 1 tiết</th>
                             <th className="text-center">Kiểm tra học kỳ</th>
                             <th className="text-center">Chỉnh sửa</th>
-                            <th className="text-center">Thêm điểm</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td className="text-center">001</td>
-                            <td className="text-center">Nguyễn A</td>
-                            <td className="text-center">8</td>
-                            <td className="text-center">10</td>
-                            <td className="text-center">9</td>
-                            <td className="text-center">
-                                <button className="btn btn-edit" onClick={() => handleEditScore()}>
-                                    <i className="bx bxs-edit"></i>
-                                </button>
-                            </td>
-                            <td className="text-center">
-                                <button className="btn btn-primary" onClick={() => handleAddScore()}>
-                                    <i className="bx bx-plus"></i>
-                                </button>
-                            </td>
-                            
-                        </tr>
-                        <tr>
-                            <td className="text-center">002</td>
-                            <td className="text-center">Trần B</td>
-                            <td className="text-center">7</td>
-                            <td className="text-center">6</td>
-                            <td className="text-center">9</td>
-                            <td className="text-center">
-                                <button className="btn btn-edit" onClick={() => handleEditScore()}>
-                                    <i className="bx bxs-edit"></i>
-                                </button>
-                            </td>
-                            <td className="text-center">
-                                <button className="btn btn-primary" onClick={() => handleAddScore()}>
-                                    <i className="bx bx-plus"></i>
-                                </button>
-                            </td>
-                        </tr>
+                        {scores.length ? (
+                            scores.map((score) => (
+                                <tr key={score.MaHocSinh}>
+                                    <td className="text-center">{score.MaHocSinh}</td>
+                                    <td className="text-center">{score.TenHocSinh}</td>
+                                    <td className="text-center">{score.Diem15Phut !== null ? score.Diem15Phut : 'N/A'}</td>
+                                    <td className="text-center">{score.Diem1Tiet !== null ? score.Diem1Tiet : 'N/A'}</td>
+                                    <td className="text-center">{score.DiemHocKy !== null ? score.DiemHocKy : 'N/A'}</td>
+                                    <td className="text-center">
+                                        <button className="btn btn-edit" onClick={() => handleEditClick(score)}>Chỉnh sửa</button>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="6" className="text-center">Không có dữ liệu học sinh.</td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
             </div>
-    
-            {
-                showEditScoreModel && (
-                    <div className="modal-add-class">
-                        <div className="modal-content-add-class">
-                            <span className="close-add-class" onClick={closeEditScoreModel}>&times;</span>
-                            <h2>Chỉnh sửa bảng điểm môn học</h2>
-                            <form className="form-add-class">
-                                <div className="form-row-add-class">
-                                    <label>Mã học sinh:</label>
-                                    <input type="text" name="classname" placeholder="001" readOnly className="styled-input read-only-input"/>
-                                </div>
-                                <div className="form-row-add-class">
-                                    <label>Họ và tên:</label>
-                                    <input type="text" name="classname" placeholder="Nguyễn A" readOnly className="styled-input read-only-input"/>
-                                </div>
-                                <div className="form-row-add-class">
-                                    <label>Kiểm tra 15 phút:</label>
-                                    <input type="text" name="classname" placeholder="8" />
-                                </div>
-                                <div className="form-row-add-class">
-                                    <label>Kiểm tra 1 tiết:</label>
-                                    <input type="text" name="classname" placeholder="10" />
-                                </div>
-                                <div className="form-row-add-class">
-                                    <label>Kiểm tra học kỳ:</label>
-                                    <input type="text" name="classname" placeholder="9" />
-                                </div>
-                                <button type="submit" className="save-btn-add-class">Cập nhật</button>
-                            </form>
-                        </div>
-                    </div>
-                )
-            }
 
-            {
-                showAddScoreModel && (
-                    <div className="modal">
-                        <div className="modal-content">
-                            <span className="close" onClick={closeAddScoreModel}>&times;</span>
-                            <h2>Thêm điểm môn học</h2>
-                            <form>
-                    <div className="form-group">
-                        <label>Kiểm tra 15 phút:</label>
-                        <input type="text" name="name" placeholder="Thêm..." />
-                    </div>
-                    <div className="form-group">
-                        <label>Kiểm tra 1 tiết:</label>
-                        <input type="text" name="name" placeholder="Thêm..." />
-                    </div>
-                    <div className="form-group">
-                        <label>Kiểm tra học kỳ:</label>
-                        <input type="text" name="name" placeholder="Thêm..." />
-                    </div>
-                    <button type="submit" className="save-btn">Thêm</button>
-                </form>
-                        </div>
-                    </div>
-                )
-            }
-
-    </div>
+            {isModalOpen && (
+                <div className="modal">
+                    <form onSubmit={handleSubmit}>
+                        <label>
+                            Điểm 15 phút:
+                            <input
+                                type="text"
+                                name="Diem15Phut"
+                                value={updatedScore.Diem15Phut}
+                                onChange={handleScoreChange}
+                            />
+                        </label>
+                        {/* Similar inputs for Diem1Tiet and DiemHocKy */}
+                        <button type="submit">Save</button>
+                        <button type="button" onClick={() => setIsModalOpen(false)}>Cancel</button>
+                    </form>
+                </div>
+            )}
+        </div>
     );
 };
 
