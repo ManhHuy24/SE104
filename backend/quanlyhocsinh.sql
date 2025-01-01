@@ -1,6 +1,17 @@
 DROP DATABASE quanlyhocsinh;
+
 CREATE DATABASE quanlyhocsinh CHARACTER SET utf8mb4 COLLATE utf8mb4_vietnamese_ci;
 use quanlyhocsinh;
+
+-- Tạo bảng THAMSO
+CREATE TABLE THAMSO (
+    TuoiHocSinhToiThieu INT,
+    TuoiHocSinhToiDa INT,
+    SoLuongHocSinhToiDa INT,
+    DiemToiDa FLOAT,
+    DiemToiThieu FLOAT,
+    DiemDat FLOAT
+);
 
 -- Tạo bảng NAMHOC
 CREATE TABLE NAMHOC (
@@ -8,6 +19,21 @@ CREATE TABLE NAMHOC (
     Nam1 INT,
     Nam2 INT
 );
+
+-- Tạo bảng HOCKY
+CREATE TABLE HOCKY (
+    MaHocKy INT AUTO_INCREMENT PRIMARY KEY,
+    TenHocKy NVARCHAR(50)
+);
+INSERT INTO HOCKY (MaHocKy, TenHocKy) VALUES ('1', 'Học kỳ I'), ('2', 'Học kỳ II');
+
+-- Tạo bảng LOAIKIEMTRA
+CREATE TABLE LOAIKIEMTRA (
+    MaLKT INT PRIMARY KEY,
+    TenLKT NVARCHAR(50),
+    HeSo FLOAT
+);
+INSERT INTO LOAIKIEMTRA (MaLKT, TenLKT, HeSo) VALUES ('1', '15 phút', '1'), ('2', '1 tiết', '2'), ('3', 'học kỳ', '3');
 
 -- Tạo bảng KHOILOP
 CREATE TABLE KHOILOP (
@@ -33,7 +59,7 @@ CREATE TABLE DANHSACHLOP (
     FOREIGN KEY (MaLop) REFERENCES LOP(MaLop)
 );
 
--- Tạo bảng HOCSINH với cột GioiTinh
+-- Tạo bảng HOCSINH
 CREATE TABLE HOCSINH (
     MaHocSinh INT AUTO_INCREMENT PRIMARY KEY,
     TenHocSinh NVARCHAR(50),
@@ -52,56 +78,11 @@ CREATE TABLE CT_DSL (
     FOREIGN KEY (MaHocSinh) REFERENCES HOCSINH(MaHocSinh)
 );
 
--- Tạo bảng THAMSO
-CREATE TABLE THAMSO (
-    TuoiHocSinhToiThieu INT,
-    TuoiHocSinhToiDa INT,
-    SoLuongHocSinhToiDa INT,
-    DiemToiDa FLOAT,
-    DiemToiThieu FLOAT,
-    DiemDat FLOAT
-);
-
 -- Tạo bảng MONHOC
 CREATE TABLE MONHOC (
     MaMonHoc INT AUTO_INCREMENT PRIMARY KEY,
     TenMonHoc NVARCHAR(50),
     DiemDatMonHoc FLOAT
-);
-
--- Tạo bảng HOCKY
-CREATE TABLE HOCKY (
-    MaHocKy INT AUTO_INCREMENT PRIMARY KEY,
-    TenHocKy NVARCHAR(50)
-);
-
--- Tạo bảng BC_TKMH
-CREATE TABLE BC_TKMH (
-    MaBC_TKM INT AUTO_INCREMENT PRIMARY KEY,
-    MaNamHoc VARCHAR(255),
-    MaMonHoc INT,
-    MaHocKy INT,
-    FOREIGN KEY (MaNamHoc) REFERENCES NAMHOC(MaNamHoc),
-    FOREIGN KEY (MaMonHoc) REFERENCES MONHOC(MaMonHoc),
-    FOREIGN KEY (MaHocKy) REFERENCES HOCKY(MaHocKy)
-);
-
--- Tạo bảng BC_TKHK
-CREATE TABLE BC_TKHK (
-    MaBC_TKHK INT AUTO_INCREMENT PRIMARY KEY,
-    MaHocKy INT,
-    MaDanhSachLop INT,
-    SoLuongDat INT,
-    TiLe FLOAT,
-    FOREIGN KEY (MaHocKy) REFERENCES HOCKY(MaHocKy),
-    FOREIGN KEY (MaDanhSachLop) REFERENCES DANHSACHLOP(MaDanhSachLop)
-);
-
--- Tạo bảng LOAIKIEMTRA
-CREATE TABLE LOAIKIEMTRA (
-    MaLKT INT AUTO_INCREMENT PRIMARY KEY,
-    TenLKT NVARCHAR(50),
-    HeSo FLOAT
 );
 
 -- Tạo bảng BANGDIEM
@@ -131,5 +112,29 @@ CREATE TABLE BD_THANHPHAN (
     MaLKT INT,
     KetQua FLOAT,
     FOREIGN KEY (MaBD_MH) REFERENCES BD_MONHOC(MaBD_MH),
-    FOREIGN KEY (MaLKT) REFERENCES LOAIKIEMTRA(MaLKT)
+    FOREIGN KEY (MaLKT) REFERENCES LOAIKIEMTRA(MaLKT),
+
+    UNIQUE KEY (MaBD_MH, MaLKT)
+);
+
+-- Tạo bảng BC_TKMH
+CREATE TABLE BC_TKMH (
+    MaBC_TKM INT AUTO_INCREMENT PRIMARY KEY,
+    MaNamHoc VARCHAR(255),
+    MaMonHoc INT,
+    MaHocKy INT,
+    FOREIGN KEY (MaNamHoc) REFERENCES NAMHOC(MaNamHoc),
+    FOREIGN KEY (MaMonHoc) REFERENCES MONHOC(MaMonHoc),
+    FOREIGN KEY (MaHocKy) REFERENCES HOCKY(MaHocKy)
+);
+
+-- Tạo bảng BC_TKHK
+CREATE TABLE BC_TKHK (
+    MaBC_TKHK INT AUTO_INCREMENT PRIMARY KEY,
+    MaHocKy INT,
+    MaDanhSachLop INT,
+    SoLuongDat INT,
+    TiLe FLOAT,
+    FOREIGN KEY (MaHocKy) REFERENCES HOCKY(MaHocKy),
+    FOREIGN KEY (MaDanhSachLop) REFERENCES DANHSACHLOP(MaDanhSachLop)
 );

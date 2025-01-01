@@ -60,8 +60,6 @@ const BangDiemMonHoc = () => {
             setIsLoading(true);
             setError(null);
             
-            console.log('Sending request with filters:', filters);
-            
             const response = await fetch('http://localhost:5005/api/scores/get-scores', {
                 method: 'POST',
                 headers: { 
@@ -71,23 +69,12 @@ const BangDiemMonHoc = () => {
                 body: JSON.stringify(filters),
             });
             
-            // Log the raw response for debugging
-            console.log('Response status:', response.status);
-            
-            const text = await response.text();
-            console.log('Raw response:', text);
-            
-            let data;
-            try {
-                data = JSON.parse(text);
-            } catch (e) {
-                throw new Error('Invalid JSON response from server');
-            }
-            
+            const data = await response.json();
+
             if (!response.ok) {
                 throw new Error(data.message || 'Failed to fetch scores');
             }
-            
+
             setScores(data.data || []);
         } catch (err) {
             setError(err.message || 'Failed to fetch scores');
@@ -99,9 +86,9 @@ const BangDiemMonHoc = () => {
 
     useEffect(() => {
         if (filters.MaNamHoc && filters.MaLop && filters.MaMonHoc) {
-            fetchScores();
+          fetchScores();
         }
-    }, [filters]);
+      }, [filters]);      
 
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
@@ -126,23 +113,37 @@ const BangDiemMonHoc = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch('http://localhost:5005/api/scores/add-or-update-score', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    MaBD_MH: currentScore.MaBD_MH,
-                    MaLKT: 1, // Example MaLKT for 15 minutes test
-                    KetQua: updatedScore.Diem15Phut,
-                }),
-            });
+            const scoresToUpdate = [
+                { MaLKT: 1, KetQua: updatedScore.Diem15Phut },
+                { MaLKT: 2, KetQua: updatedScore.Diem1Tiet },
+                { MaLKT: 3, KetQua: updatedScore.DiemHocKy },
+            ];
 
-            if (!response.ok) {
-                throw new Error('Failed to update score');
+            for (const score of scoresToUpdate) {
+                console.log('currentScore:', currentScore);
+                console.log('score:', score);
+                if (score.KetQua !== '') {
+                    const response = await fetch('http://localhost:5005/api/scores/add-or-update-score', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            MaBD_MH: currentScore.MaBD_MH,
+                            MaLKT: score.MaLKT,
+                            KetQua: score.KetQua,
+                        }),
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.message || 'Failed to update score');
+                    }
+                }
             }
+    
             setIsModalOpen(false);
             fetchScores();
         } catch (err) {
-            console.error(err.message);
+            console.error('Failed to update scores:', err.message);
         }
     };
 
@@ -213,67 +214,62 @@ const BangDiemMonHoc = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {scores.length ? (
-                            scores.map((score) => (
-                                <tr key={score.MaHocSinh}>
-                                    <td className="text-center">{score.MaHocSinh}</td>
-                                    <td className="text-center">{score.TenHocSinh}</td>
-                                    <td className="text-center">{score.Diem15Phut !== null ? score.Diem15Phut : 'N/A'}</td>
-                                    <td className="text-center">{score.Diem1Tiet !== null ? score.Diem1Tiet : 'N/A'}</td>
-                                    <td className="text-center">{score.DiemHocKy !== null ? score.DiemHocKy : 'N/A'}</td>
-                                    <td className="text-center">
-                                        <button className="btn btn-edit" onClick={() => handleEditClick(score)}>Chỉnh sửa</button>
-                                    </td>
-                                </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan="6" className="text-center">Không có dữ liệu học sinh.</td>
+                        {scores.map((score, index) => {
+                            // Tạo key duy nhất bằng cách kết hợp index, MaHocSinh và MaMonHoc
+                            const uniqueKey = `${index}-${score.MaHocSinh}-${score.MaMonHoc}`;
+
+                            return (
+                            <tr key={uniqueKey}>
+                                <td className="text-center">{score.MaHocSinh}</td>
+                                <td className="text-center">{score.TenHocSinh}</td>
+                                <td className="text-center">{score.Diem15Phut !== null ? score.Diem15Phut : 'N/A'}</td>
+                                <td className="text-center">{score.Diem1Tiet !== null ? score.Diem1Tiet : 'N/A'}</td>
+                                <td className="text-center">{score.DiemHocKy !== null ? score.DiemHocKy : 'N/A'}</td>
+                                <td className="text-center">
+                                <button className="btn btn-edit" onClick={() => handleEditClick(score)}>Chỉnh sửa</button>
+                                </td>
                             </tr>
-                        )}
+                            );
+                        })}
                     </tbody>
                 </table>
             </div>
 
             {isModalOpen && (
-                <>
-                    <div className="modal-overlay" onClick={() => setIsModalOpen(false)}></div>
-                    <div className="modal">
-                        <form onSubmit={handleSubmit}>
-                            <label>
-                                Điểm 15 phút:
-                                <input
-                                    type="text"
-                                    name="Diem15Phut"
-                                    value={updatedScore.Diem15Phut}
-                                    onChange={handleScoreChange}
-                                />
-                            </label>
-                            <label>
-                                Điểm 1 tiết:
-                                <input
-                                    type="text"
-                                    name="Diem1Tiet"
-                                    value={updatedScore.Diem1Tiet}
-                                    onChange={handleScoreChange}
-                                />
-                            </label>
-                            <label>
-                                Điểm học kỳ:
-                                <input
-                                    type="text"
-                                    name="DiemHocKy"
-                                    value={updatedScore.DiemHocKy}
-                                    onChange={handleScoreChange}
-                                />
-                            </label>
-                            <button type="submit">Save</button>
-                            <button type="button" onClick={() => setIsModalOpen(false)}>Cancel</button>
-                        </form>
-                    </div>
-                </>
+                <div className="modal">
+                    <form onSubmit={handleSubmit}>
+                    <label>
+                        Điểm 15 phút:
+                        <input
+                        type="text"
+                        name="Diem15Phut"
+                        value={updatedScore.Diem15Phut}
+                        onChange={handleScoreChange}
+                        />
+                    </label>
+                    <label>
+                        Điểm 1 tiết:
+                        <input
+                        type="text"
+                        name="Diem1Tiet"
+                        value={updatedScore.Diem1Tiet}
+                        onChange={handleScoreChange}
+                        />
+                    </label>
+                    <label>
+                        Điểm học kỳ:
+                        <input
+                        type="text"
+                        name="DiemHocKy"
+                        value={updatedScore.DiemHocKy}
+                        onChange={handleScoreChange}
+                        />
+                    </label>
+                    <button type="submit">Lưu</button>
+                    <button type="button" onClick={() => setIsModalOpen(false)}>Hủy</button>
+                    </form>
+                </div>
             )}
-
         </div>
     );
 };

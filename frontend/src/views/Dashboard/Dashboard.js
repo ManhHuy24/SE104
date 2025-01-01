@@ -6,7 +6,7 @@ const Dashboard = () => {
     return (
         <div className="sidebar-content">
             <div className="logo">
-                <span className="title"><strong>SCHOOL logo</strong></span>
+                <span className="title"><strong>STUDENT MANAGEMENT</strong></span>
             </div>
 
             <div className="menu-section">

@@ -6,7 +6,6 @@ const QuanLyMonHoc = () => {
     const [searchKeyword, setSearchKeyword] = useState('');
     const [showAddSubjectModel, setShowAddSubjectModel] = useState(false);
     const [showEditSubjectModel, setShowEditSubjectModel] = useState(false);
-    const [currentSubject, setCurrentSubject] = useState(null);
     const [newSubject, setNewSubject] = useState({ TenMonHoc: '', DiemDatMonHoc: '' });
     const [editSubject, setEditSubject] = useState({ MaMonHoc: '', TenMonHoc: '', DiemDatMonHoc: '' });
 
@@ -227,7 +226,7 @@ const QuanLyMonHoc = () => {
                     </div>
                 </div>
             )}
-            
+
             {/* Edit Subject Modal */}
             {showEditSubjectModel && (
                 <div className="modal">
