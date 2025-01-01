@@ -67,36 +67,89 @@ class ClassList {
     }
 
     static async removeStudentFromClass(MaHocSinh, MaNamHoc, MaLop) {
+
+        const connection = await db.getConnection(); 
         try {
-            const [results] = await db.query(
+            await connection.beginTransaction();
+
+            console.log('Checking student assignment...');
+            const [results] = await connection.query(
                 `
-                SELECT COUNT(*) as count
+                SELECT CT.MaCT_DSL
                 FROM CT_DSL CT
                 JOIN DANHSACHLOP DS ON CT.MaDanhSachLop = DS.MaDanhSachLop
                 WHERE CT.MaHocSinh = ? AND DS.MaLop = ? AND DS.MaNamHoc = ?
                 `,
                 [MaHocSinh, MaLop, MaNamHoc]
             );
-    
-            if (results[0].count === 0) {
-                throw new Error('Student is not assigned to this class');
+
+            if (results.length === 0) {
+                throw new Error('Học sinh không thuộc lớp này.');
             }
-    
-            await db.query(
+
+            const MaCT_DSL = results[0].MaCT_DSL;
+
+            console.log('Deleting related records from BD_THANHPHAN...');
+            await connection.query(
+                `
+                DELETE BD_TP
+                FROM BD_THANHPHAN BD_TP
+                JOIN BD_MONHOC BD_MH ON BD_TP.MaBD_MH = BD_MH.MaBD_MH
+                JOIN BANGDIEM BD ON BD_MH.MaBangDiem = BD.MaBangDiem
+                WHERE BD.MaCT_DSL = ?
+                `,
+                [MaCT_DSL]
+            );
+
+            console.log('Deleting related records from BD_MONHOC...');
+            await connection.query(
+                `
+                DELETE BD_MH
+                FROM BD_MONHOC BD_MH
+                JOIN BANGDIEM BD ON BD_MH.MaBangDiem = BD.MaBangDiem
+                WHERE BD.MaCT_DSL = ?
+                `,
+                [MaCT_DSL]
+            );
+
+            console.log('Deleting records from BANGDIEM...');
+            await connection.query(
+                `
+                DELETE BD
+                FROM BANGDIEM BD
+                WHERE BD.MaCT_DSL = ?
+                `,
+                [MaCT_DSL]
+            );
+
+            console.log('Deleting records from CT_DSL...');
+            await connection.query(
                 `
                 DELETE CT
                 FROM CT_DSL CT
-                JOIN DANHSACHLOP DS ON CT.MaDanhSachLop = DS.MaDanhSachLop
-                WHERE CT.MaHocSinh = ? AND DS.MaLop = ? AND DS.MaNamHoc = ?
+                WHERE CT.MaCT_DSL = ?
                 `,
-                [MaHocSinh, MaLop, MaNamHoc]
+                [MaCT_DSL]
             );
-    
-            await this.updateSiSo(MaNamHoc, MaLop);
-    
-            return { message: 'Student removed from class successfully' };
+
+            console.log('Updating SiSo...');
+            await connection.query(
+                `
+                UPDATE DANHSACHLOP DS
+                SET SiSo = SiSo - 1
+                WHERE DS.MaLop = ? AND DS.MaNamHoc = ?
+                `,
+                [MaLop, MaNamHoc]
+            );
+
+            await connection.commit();
+            return { message: 'Học sinh đã được xóa khỏi lớp thành công.' };
         } catch (err) {
-            throw err;
+            console.error('Error during transaction:', err.message);
+            await connection.rollback();
+            throw new Error(`Lỗi khi xóa học sinh khỏi lớp: ${err.message}`);
+        } finally {
+            connection.release();
         }
     }    
 }
