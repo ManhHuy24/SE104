@@ -12,7 +12,7 @@ const BangDiemMonHoc = () => {
         MaNamHoc: '',
         MaLop: '',
         MaMonHoc: '',
-        MaHocKy: 1, // Change from 'HK1' to 1
+        MaHocKy: 1,
     });
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -240,9 +240,9 @@ const BangDiemMonHoc = () => {
                             <tr key={uniqueKey}>
                                 <td className="text-center">{score.MaHocSinh}</td>
                                 <td className="text-center">{score.TenHocSinh}</td>
-                                <td className="text-center">{score.Diem15Phut !== null ? score.Diem15Phut : 'N/A'}</td>
-                                <td className="text-center">{score.Diem1Tiet !== null ? score.Diem1Tiet : 'N/A'}</td>
-                                <td className="text-center">{score.DiemHocKy !== null ? score.DiemHocKy : 'N/A'}</td>
+                                <td className="text-center">{score.Diem15Phut !== null ? score.Diem15Phut : 'empty'}</td>
+                                <td className="text-center">{score.Diem1Tiet !== null ? score.Diem1Tiet : 'empty'}</td>
+                                <td className="text-center">{score.DiemHocKy !== null ? score.DiemHocKy : 'empty'}</td>
                                 <td className="text-center">
                                 <button className="btn btn-edit" onClick={() => handleEditClick(score)}>Chỉnh sửa</button>
                                 </td>

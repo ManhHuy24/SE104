@@ -10,8 +10,13 @@ import SubjectGrades from './Pages/BangDiemMonHoc/BangDiemMonHoc';
 import Reports from './Pages/BaoCao/BaoCao';
 import CaiDat from './Pages/CaiDat/CaiDat';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
 
 function App() {
+  useEffect(() => {
+    document.title = "Quản Lý Học Sinh";
+  }, []);
+
   return (
     <div className="App">
       <header className="App-header">
