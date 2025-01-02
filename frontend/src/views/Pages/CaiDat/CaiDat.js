@@ -10,7 +10,6 @@ const CaiDat = () => {
    const [diemToiDa, setDiemToiDa] = useState('');
    const [diemDat, setDiemDat] = useState('');
 
-
    useEffect(() => {
       fetch("http://localhost:5005/api/thamso")
           .then((response) => {
@@ -33,8 +32,7 @@ const CaiDat = () => {
           .catch((error) => {
               console.error("Lỗi khi tải dữ liệu tham số:", error);
           });
-  }, []);  
-
+   }, []);
 
    const handleAddNamHoc = () => {
       fetch("http://localhost:5005/api/thamso/", {
@@ -63,23 +61,39 @@ const CaiDat = () => {
             alert(`Lỗi: ${error.message}`);
          });
    };
-  
-   
+
    const handleSave = () => {
+      // Kiểm tra ràng buộc
       if (!tuoiToiThieu || !tuoiToiDa || !siSo || !diemToiDa || !diemToiThieu || !diemDat) {
          alert("Vui lòng điền đầy đủ thông tin");
          return;
       }
-   
+      if (parseInt(tuoiToiThieu) >= parseInt(tuoiToiDa)) {
+         alert("Tuổi tối thiểu phải nhỏ hơn tuổi tối đa");
+         return;
+      }
+      if (parseInt(diemToiThieu) >= parseInt(diemToiDa)) {
+         alert("Điểm tối thiểu phải nhỏ hơn điểm tối đa");
+         return;
+      }
+      if (parseInt(diemDat) < parseInt(diemToiThieu) || parseInt(diemDat) > parseInt(diemToiDa)) {
+         alert("Điểm đạt phải nằm trong khoảng từ điểm tối thiểu đến điểm tối đa");
+         return;
+      }
+      if (parseInt(siSo) <= 0) {
+         alert("Sĩ số tối đa phải lớn hơn 0");
+         return;
+      }
+
       const data = {
          TuoiHocSinhToiThieu: tuoiToiThieu,
-         TuoiHocSinhToiDa: tuoiToiDa, 
+         TuoiHocSinhToiDa: tuoiToiDa,
          SoLuongHocSinhToiDa: siSo,
          DiemToiDa: diemToiDa,
          DiemToiThieu: diemToiThieu,
          DiemDat: diemDat
       };
-   
+
       fetch('http://localhost:5005/api/thamso', {
          method: 'PUT',
          headers: {
@@ -108,20 +122,22 @@ const CaiDat = () => {
    return (
       <div>
          <div className="card">
-               <h3 className="title">THÊM NĂM HỌC</h3>
-               <p className="note">Thêm niên khóa mới chỉ cần nhập năm hiện tại, ứng dụng sẽ tự động lưu.
-               <br />Ví dụ: Nhập 2023. Cơ sở dữ liệu sẽ lưu dưới dạng (2023-2024).</p>
-               <div className="input-group">
-                  <label htmlFor="nienkhoa" className="setting-label">Năm học</label>
-                  <input
-                     type="text"
-                     id="nienkhoa"
-                     placeholder="Nhập năm học"
-                     value={nienKhoa}
-                     onChange={(e) => setNienKhoa(e.target.value)}
-                  />
-                  <button onClick={handleAddNamHoc}>Thêm</button>
-               </div>
+            <h3 className="title">THÊM NĂM HỌC</h3>
+            <p className="note">
+               Thêm niên khóa mới chỉ cần nhập năm hiện tại, ứng dụng sẽ tự động lưu.
+               <br />Ví dụ: Nhập 2023. Cơ sở dữ liệu sẽ lưu dưới dạng (2023-2024).
+            </p>
+            <div className="input-group">
+               <label htmlFor="nienkhoa" className="setting-label">Năm học</label>
+               <input
+                  type="text"
+                  id="nienkhoa"
+                  placeholder="Nhập năm học"
+                  value={nienKhoa}
+                  onChange={(e) => setNienKhoa(e.target.value)}
+               />
+               <button onClick={handleAddNamHoc}>Thêm</button>
+            </div>
          </div>
 
          <div className="card">
@@ -200,9 +216,9 @@ const CaiDat = () => {
                   />
                </div>
          </div>
-
+         
          <div className="save-button">
-               <button onClick={handleSave}>Lưu</button>
+            <button onClick={handleSave}>Lưu</button>
          </div>
       </div>
    );
