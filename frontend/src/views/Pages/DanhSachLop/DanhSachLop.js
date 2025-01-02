@@ -62,13 +62,10 @@ const DanhSachLop = () => {
 
     const handleRemoveFromClass = async (studentId) => {
         try {
-            // Fetch the student's class assignments from the API
             const response = await fetch('http://localhost:5005/api/class/assignments');
             if (!response.ok) throw new Error('Không thể lấy thông tin phân công lớp học.');
-    
             const assignments = await response.json();
     
-            // Find the class assigned to the student
             const studentAssignedClass = assignments[studentId];
             if (!studentAssignedClass) {
                 alert('Học sinh không thuộc lớp nào.');
@@ -87,18 +84,12 @@ const DanhSachLop = () => {
                 return;
             }
     
-            const normalizedYear = `${yearMapping.Nam1}-${yearMapping.Nam2}`;
-            console.log('Normalized Year:', normalizedYear);
-    
-            // Prepare payload
             const payload = {
                 MaHocSinh: studentId,
-                MaNamHoc: normalizedYear,
+                MaNamHoc: `${yearMapping.Nam1}-${yearMapping.Nam2}`,
                 MaLop: classMapping.MaLop,
             };
-            console.log('Payload:', payload);
     
-            // Call the API to remove the student
             const removalResponse = await fetch('http://localhost:5005/api/class/remove-student', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -111,12 +102,12 @@ const DanhSachLop = () => {
             }
     
             alert('Học sinh đã được xoá khỏi lớp.');
-            fetchData(); // Refresh data to update UI
+            fetchData();
         } catch (error) {
-            console.error('Error removing student:', error);
-            alert('Có lỗi xảy ra khi xoá học sinh khỏi lớp.');
+            console.error('Có lỗi xảy ra:', error.message);
+            alert(`Có lỗi xảy ra: ${error.message}`); // Show error message in alert
         }
-    };        
+    };            
     
     const isAssignedToAnyClass = (studentId) => {
         return assignedClasses[studentId]; // Check if student is assigned to any class
@@ -128,7 +119,6 @@ const DanhSachLop = () => {
             return;
         }
     
-        // Check if any selected student is already assigned
         const alreadyAssigned = selectedStudents.filter((id) => assignedClasses[id]);
         if (alreadyAssigned.length > 0) {
             const assignedNames = alreadyAssigned
@@ -138,7 +128,6 @@ const DanhSachLop = () => {
             return;
         }
     
-        // Find mappings
         const yearMapping = years.find((y) => `${y.Nam1}-${y.Nam2}` === selectedYear);
         const classMapping = classes.find((c) => c.TenLop === selectedClass);
     
@@ -166,8 +155,6 @@ const DanhSachLop = () => {
             }
     
             alert('Học sinh đã được thêm vào lớp thành công!');
-    
-            // Update assignedClasses state dynamically
             setAssignedClasses((prev) => {
                 const updatedAssignments = { ...prev };
                 selectedStudents.forEach((id) => {
@@ -176,12 +163,12 @@ const DanhSachLop = () => {
                 return updatedAssignments;
             });
     
-            setSelectedStudents([]); // Reset selection after successful submission
+            setSelectedStudents([]);
         } catch (error) {
-            console.error('Error submitting data:', error);
-            alert('Có lỗi xảy ra khi thêm học sinh vào lớp.');
+            console.error('Có lỗi xảy ra:', error.message);
+            alert(`Có lỗi xảy ra: ${error.message}`); // Show error message in alert
         }
-    };    
+    };     
 
     return (
         <div>
