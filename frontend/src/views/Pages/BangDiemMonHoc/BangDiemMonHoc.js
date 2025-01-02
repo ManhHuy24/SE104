@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './BangDiemMonHoc.css';
 
 const BangDiemMonHoc = () => {
@@ -63,7 +63,7 @@ const BangDiemMonHoc = () => {
         fetchDropdownData();
     }, []);
 
-    const fetchScores = async () => {
+    const fetchScores = useCallback( async () => {
         try {
             setIsLoading(true);
             setError(null);
@@ -94,13 +94,13 @@ const BangDiemMonHoc = () => {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [filters]);
 
     useEffect(() => {
         if (filters.MaNamHoc && filters.MaLop && filters.MaMonHoc) {
           fetchScores();
         }
-    }, [filters]);      
+    }, [filters, fetchScores]);      
 
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
