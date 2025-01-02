@@ -18,6 +18,7 @@ const BangDiemMonHoc = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentScore, setCurrentScore] = useState(null);
     const [updatedScore, setUpdatedScore] = useState({ Diem15Phut: '', Diem1Tiet: '', DiemHocKy: '' });
+    const [diemThamSo, setDiemThamSo] = useState({ DiemToiDa: 10, DiemToiThieu: 0 });
 
     const semesterOptions = [
         { value: 1, label: 'Học kỳ I' },
@@ -28,15 +29,22 @@ const BangDiemMonHoc = () => {
         const fetchDropdownData = async () => {
             try {
                 setIsLoading(true);
-                const [yearsResponse, classesResponse, subjectsResponse] = await Promise.all([
+                const [yearsResponse, classesResponse, subjectsResponse, thamSoResponse] = await Promise.all([
                     fetch('http://localhost:5005/api/years').then(res => res.json()),
                     fetch('http://localhost:5005/classes').then(res => res.json()),
                     fetch('http://localhost:5005/api/subjects').then(res => res.json()),
+                    fetch('http://localhost:5005/api/thamso').then(res => res.json()),
                 ]);
+
+                const thamSo = thamSoResponse[0] || {};
 
                 setYears(yearsResponse || []);
                 setClasses(classesResponse || []);
                 setSubjects(subjectsResponse || []);
+                setDiemThamSo({
+                    DiemToiDa: thamSo?.DiemToiDa || 10,
+                    DiemToiThieu: thamSo?.DiemToiThieu || 0,
+                });
 
                 setFilters(filters => ({
                     ...filters,
@@ -75,7 +83,11 @@ const BangDiemMonHoc = () => {
                 throw new Error(data.message || 'Failed to fetch scores');
             }
 
-            setScores(data.data || []);
+            const uniqueScores = Array.from(
+                new Map(data.data.map(score => [score.MaHocSinh, score])).values()
+            );
+
+            setScores(uniqueScores || []);
         } catch (err) {
             setError(err.message || 'Failed to fetch scores');
             console.error('Error details:', err);
@@ -88,7 +100,7 @@ const BangDiemMonHoc = () => {
         if (filters.MaNamHoc && filters.MaLop && filters.MaMonHoc) {
           fetchScores();
         }
-      }, [filters]);      
+    }, [filters]);      
 
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
@@ -107,6 +119,14 @@ const BangDiemMonHoc = () => {
 
     const handleScoreChange = (e) => {
         const { name, value } = e.target;
+        const floatValue = parseFloat(value);
+        if (
+            value !== '' && // Cho phép để trống
+            (isNaN(floatValue) || floatValue < diemThamSo.DiemToiThieu || floatValue > diemThamSo.DiemToiDa)
+        ) {
+            alert(`Điểm nhập phải nằm trong khoảng từ ${diemThamSo.DiemToiThieu} đến ${diemThamSo.DiemToiDa}.`);
+            return;
+        }
         setUpdatedScore({ ...updatedScore, [name]: value });
     };
 
@@ -215,9 +235,7 @@ const BangDiemMonHoc = () => {
                     </thead>
                     <tbody>
                         {scores.map((score, index) => {
-                            // Tạo key duy nhất bằng cách kết hợp index, MaHocSinh và MaMonHoc
                             const uniqueKey = `${index}-${score.MaHocSinh}-${score.MaMonHoc}`;
-
                             return (
                             <tr key={uniqueKey}>
                                 <td className="text-center">{score.MaHocSinh}</td>
