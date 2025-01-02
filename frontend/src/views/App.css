@@ -23,7 +23,7 @@
 }
 
 .sidebar {
-  width: 250px;
+  width: 200px;
   /* Độ rộng của sidebar */
   background-color: #f4f4f4;
   height: 100vh;
@@ -36,7 +36,7 @@
 }
 
 .content {
-  margin-left: 290px;
+  margin-left: 250px;
   /* Đẩy nội dung sang phải để không che sidebar */
   padding: 20px;
   width: calc(100% - 290px);

@@ -1,6 +1,6 @@
 /* Căn chỉnh và thiết kế cho sidebar */
 .sidebar {
-    width: 250px;
+    width: 200px;
     background-color: #f8f9fa;
     padding: 20px;
     height: 100vh;
@@ -12,9 +12,17 @@
 
 .logo {
     display: flex;
+    justify-content: center;
     align-items: center;
-    margin-bottom: 35px;
+    margin-bottom: 40px;
 }
+
+.logo-image {
+    width: 100px;
+    height: auto;
+    border-radius: 10px;
+}
+
 
 .menu-icon {
     font-size: 20px;
@@ -49,18 +57,20 @@
     display: flex;
     align-items: center;
     padding: 10px;
+    padding-left: 20px;
     color: #363d43;
     border-radius: 10px;
     border: none;
     cursor: pointer;
     transition: background-color 0.3s;
+    font-weight: 500;
 }
 
 .menu-item:hover {
-    background-color: rgb(209, 249, 209);
-    font-weight: bold;
-    font-size: 19px;
+    background-color: rgb(223, 227, 223);
+    color: rgb(0, 158, 0);
     border-radius: 10px;
+    transition: in 0.3s ease;
 }
 
 .menu-section a {

@@ -1,13 +1,19 @@
 import React from "react";
 import { Link } from 'react-router-dom';
 import "./Dashboard.css";
+import applogo from './applogo.png';
 
 const Dashboard = () => {
     return (
         <div className="sidebar-content">
             <div className="logo">
-                <span className="title"><strong>STUDENT MANAGEMENT</strong></span>
+            <img 
+                src={applogo}
+                alt="Student Management Logo" 
+                className="logo-image"
+            />
             </div>
+
 
             <div className="menu-section">
 
