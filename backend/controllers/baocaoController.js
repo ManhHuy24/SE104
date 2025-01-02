@@ -1,4 +1,4 @@
-const db = require('../config/db'); // Assuming db.js is the file with the DB connection
+const db = require('../config/db');
 
 // Fetch available years
 const getYears = async (req, res) => {
@@ -8,7 +8,6 @@ const getYears = async (req, res) => {
             FROM NAMHOC
             ORDER BY Nam1;
         `);
-
         res.json(years);
     } catch (error) {
         console.error(error);
@@ -31,17 +30,14 @@ const getSemesters = async (req, res) => {
     }
 };
 
-
 // Fetch available subjects
 const getSubjects = async (req, res) => {
     try {
-        // Query to fetch available subjects
         const [subjects] = await db.execute(`
             SELECT MaMonHoc AS id, TenMonHoc AS name
             FROM MONHOC
             ORDER BY MaMonHoc;
         `);
-
         res.json(subjects);
     } catch (error) {
         console.error(error);
@@ -50,37 +46,67 @@ const getSubjects = async (req, res) => {
 };
 
 // Report for BCTKMH - Subject Summary Report
-// Report for BCTKMH - Subject Summary Report
 const getReportTKMH = async (req, res) => {
     const { hocKy, monHoc, namHoc } = req.query;
 
     try {
-        // Generate the report
-        const [data] = await db.execute(`
-            SELECT 
-                l.TenLop,
-                dsl.SiSo,
-                COUNT(DISTINCT CASE WHEN bm.DTBMH >= ts.DiemDat THEN bm.MaBD_MH END) AS SoLuongDat
-            FROM BD_MONHOC bm
-            INNER JOIN MONHOC mh ON bm.MaMonHoc = mh.MaMonHoc
-            INNER JOIN BANGDIEM bd ON bm.MaBangDiem = bd.MaBangDiem
-            INNER JOIN CT_DSL ct ON bd.MaCT_DSL = ct.MaCT_DSL
-            INNER JOIN DANHSACHLOP dsl ON ct.MaDanhSachLop = dsl.MaDanhSachLop
-            INNER JOIN LOP l ON dsl.MaLop = l.MaLop
-            INNER JOIN THAMSO ts ON 1 = 1
-            WHERE bd.MaHocKy = ? AND bm.MaMonHoc = ? AND dsl.MaNamHoc = ?
-            GROUP BY l.TenLop, dsl.SiSo
-            ORDER BY l.TenLop;
-        `, [hocKy, monHoc, namHoc]);
-
-        // Update BC_TKMH table
-        await db.execute(`
-            INSERT INTO BC_TKMH (MaNamHoc, MaMonHoc, MaHocKy)
-            VALUES (?, ?, ?)
-            ON DUPLICATE KEY UPDATE MaNamHoc = VALUES(MaNamHoc), MaMonHoc = VALUES(MaMonHoc), MaHocKy = VALUES(MaHocKy);
+        // First check if the report exists
+        const [existing] = await db.execute(`
+            SELECT * FROM BC_TKMH
+            WHERE MaNamHoc = ? AND MaMonHoc = ? AND MaHocKy = ?;
         `, [namHoc, monHoc, hocKy]);
 
-        res.json(data);
+        let reportData;
+
+        if (existing.length === 0) {
+            // Generate the report data only if it doesn't exist
+            const [data] = await db.execute(`
+                SELECT 
+                    l.TenLop,
+                    dsl.SiSo,
+                    COUNT(DISTINCT CASE WHEN bm.DTBMH >= ts.DiemDat THEN bm.MaBD_MH END) AS SoLuongDat
+                FROM BD_MONHOC bm
+                INNER JOIN MONHOC mh ON bm.MaMonHoc = mh.MaMonHoc
+                INNER JOIN BANGDIEM bd ON bm.MaBangDiem = bd.MaBangDiem
+                INNER JOIN CT_DSL ct ON bd.MaCT_DSL = ct.MaCT_DSL
+                INNER JOIN DANHSACHLOP dsl ON ct.MaDanhSachLop = dsl.MaDanhSachLop
+                INNER JOIN LOP l ON dsl.MaLop = l.MaLop
+                INNER JOIN THAMSO ts ON 1 = 1
+                WHERE bd.MaHocKy = ? AND bm.MaMonHoc = ? AND dsl.MaNamHoc = ?
+                GROUP BY l.TenLop, dsl.SiSo
+                ORDER BY l.TenLop;
+            `, [hocKy, monHoc, namHoc]);
+
+            // Insert the report
+            await db.execute(`
+                INSERT INTO BC_TKMH (MaNamHoc, MaMonHoc, MaHocKy)
+                VALUES (?, ?, ?);
+            `, [namHoc, monHoc, hocKy]);
+
+            reportData = data;
+        } else {
+            // If report exists, fetch the existing data
+            const [data] = await db.execute(`
+                SELECT 
+                    l.TenLop,
+                    dsl.SiSo,
+                    COUNT(DISTINCT CASE WHEN bm.DTBMH >= ts.DiemDat THEN bm.MaBD_MH END) AS SoLuongDat
+                FROM BC_TKMH bc
+                INNER JOIN BD_MONHOC bm ON bc.MaMonHoc = bm.MaMonHoc
+                INNER JOIN BANGDIEM bd ON bm.MaBangDiem = bd.MaBangDiem
+                INNER JOIN CT_DSL ct ON bd.MaCT_DSL = ct.MaCT_DSL
+                INNER JOIN DANHSACHLOP dsl ON ct.MaDanhSachLop = dsl.MaDanhSachLop
+                INNER JOIN LOP l ON dsl.MaLop = l.MaLop
+                INNER JOIN THAMSO ts ON 1 = 1
+                WHERE bc.MaNamHoc = ? AND bc.MaMonHoc = ? AND bc.MaHocKy = ?
+                GROUP BY l.TenLop, dsl.SiSo
+                ORDER BY l.TenLop;
+            `, [namHoc, monHoc, hocKy]);
+            
+            reportData = data;
+        }
+
+        res.json(reportData);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: error.message });
@@ -92,46 +118,66 @@ const getReportTKHK = async (req, res) => {
     const { hocKy, namHoc } = req.query;
 
     try {
-        // Generate the report
-        const [data] = await db.execute(`
-            SELECT 
-                l.TenLop,
-                dsl.MaDanhSachLop,
-                dsl.SiSo,
-                COUNT(CASE WHEN bd.DTBHK >= ts.DiemDat THEN 1 END) AS SoLuongDat
-            FROM BANGDIEM bd
-            INNER JOIN CT_DSL ct ON bd.MaCT_DSL = ct.MaCT_DSL
-            INNER JOIN DANHSACHLOP dsl ON ct.MaDanhSachLop = dsl.MaDanhSachLop
-            INNER JOIN LOP l ON dsl.MaLop = l.MaLop
-            INNER JOIN THAMSO ts ON 1 = 1
-            WHERE bd.MaHocKy = ? AND dsl.MaNamHoc = ?
-            GROUP BY l.TenLop, dsl.MaDanhSachLop, dsl.SiSo
-            ORDER BY l.TenLop;
+        // First check if the report exists
+        const [existing] = await db.execute(`
+            SELECT COUNT(*) AS count
+            FROM BC_TKHK
+            WHERE MaHocKy = ? AND MaDanhSachLop = ?;
         `, [hocKy, namHoc]);
 
-        // Log the retrieved data for debugging
-        console.log("Report Data:", data);
+        let reportData;
 
-        // Update BC_TKHK table
-        for (const row of data) {
-            const { MaDanhSachLop, SoLuongDat, SiSo } = row;
+        if (existing[0].count === 0) {
+            // Generate the report data only if it doesn't exist
+            const [data] = await db.execute(`
+                SELECT 
+                    l.TenLop,
+                    dsl.MaDanhSachLop,
+                    dsl.SiSo,
+                    COUNT(CASE WHEN bd.DTBHK >= ts.DiemDat THEN 1 END) AS SoLuongDat
+                FROM BANGDIEM bd
+                INNER JOIN CT_DSL ct ON bd.MaCT_DSL = ct.MaCT_DSL
+                INNER JOIN DANHSACHLOP dsl ON ct.MaDanhSachLop = dsl.MaDanhSachLop
+                INNER JOIN LOP l ON dsl.MaLop = l.MaLop
+                INNER JOIN THAMSO ts ON 1 = 1
+                WHERE bd.MaHocKy = ? AND dsl.MaNamHoc = ?
+                GROUP BY l.TenLop, dsl.MaDanhSachLop, dsl.SiSo
+                ORDER BY l.TenLop;
+            `, [hocKy, namHoc]);
 
-            // Ensure no undefined values are passed
-            if (MaDanhSachLop === undefined || SoLuongDat === undefined || SiSo === undefined) {
-                console.error("Undefined parameter found in row:", row);
-                continue;
+            // Insert the report data
+            for (const row of data) {
+                const { MaDanhSachLop, SoLuongDat, SiSo } = row;
+                if (MaDanhSachLop && SoLuongDat !== undefined && SiSo) {
+                    const TiLe = SoLuongDat / SiSo;
+                    await db.execute(`
+                        INSERT INTO BC_TKHK (MaHocKy, MaDanhSachLop, SoLuongDat, TiLe)
+                        VALUES (?, ?, ?, ?);
+                    `, [hocKy, MaDanhSachLop, SoLuongDat, TiLe]);
+                }
             }
 
-            const TiLe = SoLuongDat / SiSo;
+            reportData = data;
+        } else {
+            // If report exists, fetch the existing data
+            const [data] = await db.execute(`
+                SELECT 
+                    l.TenLop,
+                    dsl.MaDanhSachLop,
+                    dsl.SiSo,
+                    bc.SoLuongDat
+                FROM BC_TKHK bc
+                INNER JOIN DANHSACHLOP dsl ON bc.MaDanhSachLop = dsl.MaDanhSachLop
+                INNER JOIN LOP l ON dsl.MaLop = l.MaLop
+                INNER JOIN THAMSO ts ON 1 = 1
+                WHERE bc.MaHocKy = ? AND dsl.MaNamHoc = ?
+                ORDER BY l.TenLop;
+            `, [hocKy, namHoc]);
 
-            await db.execute(`
-                INSERT INTO BC_TKHK (MaHocKy, MaDanhSachLop, SoLuongDat, TiLe)
-                VALUES (?, ?, ?, ?)
-                ON DUPLICATE KEY UPDATE SoLuongDat = VALUES(SoLuongDat), TiLe = VALUES(TiLe);
-            `, [hocKy, MaDanhSachLop, SoLuongDat, TiLe]);
+            reportData = data;
         }
 
-        res.json(data);
+        res.json(reportData);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: error.message });

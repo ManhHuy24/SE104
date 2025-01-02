@@ -15,19 +15,55 @@ class ClassList {
 
     static async createClass(MaNamHoc, MaLop, SiSo = 0) {
         try {
+            const maxSiSo = await this.getMaxSiSo();
+            if (SiSo > maxSiSo) {
+                throw new Error(`Sĩ số vượt quá giới hạn cho phép (${maxSiSo}).`);
+            }
             const [results] = await db.query(
                 'INSERT INTO DANHSACHLOP (MaNamHoc, MaLop, SiSo) VALUES (?, ?, ?)',
                 [MaNamHoc, MaLop, SiSo]
             );
-            return results.insertId; // Return the ID of the created row
+            return results.insertId;
         } catch (err) {
             throw err;
         }
-    }
+    }    
+
+    static async getMaxSiSo() {
+        try {
+            const [results] = await db.query(
+                'SELECT SoLuongHocSinhToiDa FROM THAMSO LIMIT 1'
+            );
+            if (results.length === 0) {
+                throw new Error('Không tìm thấy giới hạn sĩ số trong bảng THAMSO.');
+            }
+            return parseInt(results[0].SoLuongHocSinhToiDa, 10);
+        } catch (err) {
+            throw err;
+        }
+    }    
+
+    static async getClassSiSo(MaNamHoc, MaLop) {
+        try {
+            const [results] = await db.query(
+                'SELECT SiSo FROM DANHSACHLOP WHERE MaNamHoc = ? AND MaLop = ?',
+                [MaNamHoc, MaLop]
+            );
+            console.log('getClassSiSo Results:', results); // Log results
+            if (results.length === 0) {
+                throw new Error('Class not found');
+            }
+            return results[0].SiSo; // Ensure it's not wrapped in an array
+        } catch (err) {
+            throw err;
+        }
+    }    
+    
 
     static async updateSiSo(MaNamHoc, MaLop) {
         try {
-            // Count the number of students in the given class
+            const maxSiSo = await this.getMaxSiSo();
+    
             const [countResult] = await db.query(
                 `
                 SELECT COUNT(CT.MaHocSinh) AS SiSo
@@ -40,7 +76,10 @@ class ClassList {
     
             const newSiSo = countResult[0].SiSo;
     
-            // Update the SiSo in the DANHSACHLOP table
+            if (newSiSo > maxSiSo) {
+                throw new Error(`Sĩ số cập nhật (${newSiSo}) vượt quá giới hạn cho phép (${maxSiSo}).`);
+            }
+    
             await db.query(
                 'UPDATE DANHSACHLOP SET SiSo = ? WHERE MaNamHoc = ? AND MaLop = ?',
                 [newSiSo, MaNamHoc, MaLop]
@@ -48,7 +87,7 @@ class ClassList {
         } catch (err) {
             throw err;
         }
-    }    
+    }     
 
     // Fetch mappings of students to their current classes
     static async getAssignments() {
