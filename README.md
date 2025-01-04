@@ -57,7 +57,7 @@ cd SE104
    node app.js
    ```
 
-   - The backend will run on [http://localhost:5000](http://localhost:5000).
+   - The backend will run on [http://localhost:5005](http://localhost:5005).
 
 ---
 
@@ -130,7 +130,7 @@ In the project's root directory, you can run:
 Here's an example `.env` file for the backend:
 
 ```env
-PORT=5000
+PORT=5005
 DB_HOST=localhost
 DB_USER=root
 DB_PASS=password123
@@ -140,7 +140,7 @@ DB_NAME=student_db
 ### Common Issues
 
 1. **Database connection error**: Ensure your database is running and the credentials in the `.env` file are correct.
-2. **Port conflicts**: Ensure no other application is running on ports 3000 (frontend) or 5000 (backend).
+2. **Port conflicts**: Ensure no other application is running on ports 3000 (frontend) or 5005 (backend).
 
 ---
 
